@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "deviceexporter.fullname" . }}
+  labels:
+    {{- include "deviceexporter.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "deviceexporter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deviceexporter.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            privileged: true
+          #image: "deviceexporter:v1.0"
+          image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceexporter.image.name }}:{{ default .Chart.AppVersion .Values.deviceexporter.image.tag }}"
+          env:
+            - name: KRAKENPLUG_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - name: pod-resources
+              readOnly: true
+              mountPath: /var/lib/kubelet/pod-resources
+            - name: sys
+              readOnly: true
+              mountPath: /sys
+            - name: usr-local
+              readOnly: true
+              mountPath: /host/usr/local/
+      volumes:
+        - name: pod-resources
+          hostPath:
+            path: /var/lib/kubelet/pod-resources
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: usr-local
+          hostPath:
+            path: /usr/local
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "deviceexporter.fullname" . }}
+  labels:
+    {{- include "deviceexporter.labels" . | nindent 4 }}
+  annotations:
+    prometheus.io/port: "9400"
+    prometheus.io/path: "/metrics"
+    prometheus.io/scrape: "true"
+spec:
+  type: ClusterIP
+  ports:
+    - port: 9400
+      targetPort: 9400
+  selector:
+    {{- include "deviceexporter.selectorLabels" . | nindent 4 }}
+

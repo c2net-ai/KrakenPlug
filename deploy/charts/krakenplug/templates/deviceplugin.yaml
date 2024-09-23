@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "deviceplugin.fullname" . }}
+  labels:
+    {{- include "deviceplugin.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "deviceplugin.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deviceplugin.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          securityContext:
+            privileged: true
+          image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
+          volumeMounts:
+            - name: device-plugin
+              mountPath: /var/lib/kubelet/device-plugins
+            - name: sys
+              readOnly: true
+              mountPath: /sys
+            - name: usr-local
+              readOnly: true
+              mountPath: /host/usr/local/
+      volumes:
+        - name: device-plugin
+          hostPath:
+            path: /var/lib/kubelet/device-plugins
+        - name: sys
+          hostPath:
+            path: /sys
+        - name: usr-local
+          hostPath:
+            path: /usr/local

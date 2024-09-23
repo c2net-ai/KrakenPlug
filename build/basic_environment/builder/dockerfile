@@ -1,0 +1,6 @@
+from golang:1.18 as builder
+
+ENV GOPATH /go
+ENV CGO_ENABLED 1
+ENV GO111MODULE on
+ENV GOPROXY=https://goproxy.cn,direct
