@@ -1,2 +1,2 @@
-# KrakenKit
+# KrakenPlug
 

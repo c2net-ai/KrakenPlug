@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
 	"os"
 	"path"
 	"strconv"
@@ -41,6 +42,11 @@ func NewServer() (*Server, error) {
 	}
 
 	device, err = enflame.NewEnflame()
+	if err == nil {
+		goto start
+	}
+
+	device, err = nvidia.NewNvidia()
 	if err == nil {
 		goto start
 	}
