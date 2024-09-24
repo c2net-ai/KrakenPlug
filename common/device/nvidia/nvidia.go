@@ -2,13 +2,13 @@ package nvidia
 
 import (
 	"fmt"
+	"k8s.io/klog/v2"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
-	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 )
@@ -18,6 +18,12 @@ type Nvidia struct {
 }
 
 func (n *Nvidia) Release() error {
+	ret := n.nvmllib.Shutdown()
+	if ret != nvml.SUCCESS {
+		klog.Infof("Error shutting down NVML: %v", ret)
+		return errors.Errorf(nil, "Error shutting down NVML: %v", ret)
+	}
+
 	return nil
 }
 
@@ -69,12 +75,6 @@ func NewNvidia() (device.Device, error) {
 	if ret != nvml.SUCCESS {
 		return nil, fmt.Errorf("failed to initialize NVML: %v", ret)
 	}
-	defer func() {
-		ret := nvmllib.Shutdown()
-		if ret != nvml.SUCCESS {
-			klog.Infof("Error shutting down NVML: %v", ret)
-		}
-	}()
 
 	return &Nvidia{nvmllib: nvmllib}, nil
 }
