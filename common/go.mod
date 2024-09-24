@@ -10,6 +10,7 @@ require (
 )
 
 require (
+	github.com/NVIDIA/go-nvml v0.12.4-0
 	github.com/fsnotify/fsnotify v1.6.0 // indirect
 	github.com/go-logr/logr v0.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
@@ -21,7 +22,6 @@ require (
 	google.golang.org/grpc v1.57.2 // indirect
 	google.golang.org/protobuf v1.30.0 // indirect
 	k8s.io/apimachinery v0.19.0 // indirect
-		github.com/NVIDIA/go-nvml v0.12.4-0
 )
 
 replace (

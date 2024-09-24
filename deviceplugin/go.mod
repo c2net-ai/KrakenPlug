@@ -13,6 +13,7 @@ require (
 )
 
 require (
+	github.com/NVIDIA/go-nvml v0.12.4-0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0-20190314233015-f79a8a8ca69d // indirect
 	github.com/go-logr/logr v0.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect

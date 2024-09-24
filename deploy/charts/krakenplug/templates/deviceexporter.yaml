@@ -31,9 +31,9 @@ spec:
             - name: sys
               readOnly: true
               mountPath: /sys
-            - name: usr-local
+            - name: usr
               readOnly: true
-              mountPath: /host/usr/local/
+              mountPath: /host/usr
       volumes:
         - name: pod-resources
           hostPath:
@@ -41,9 +41,9 @@ spec:
         - name: sys
           hostPath:
             path: /sys
-        - name: usr-local
+        - name: usr
           hostPath:
-            path: /usr/local
+            path: /usr
 ---
 apiVersion: v1
 kind: Service
