@@ -17,9 +17,13 @@ type Nvidia struct {
 	nvmllib nvml.Interface
 }
 
+func isSuccess(ret nvml.Return) bool {
+	return ret == nvml.SUCCESS
+}
+
 func (n *Nvidia) Release() error {
 	ret := n.nvmllib.Shutdown()
-	if ret != nvml.SUCCESS {
+	if !isSuccess(ret) {
 		klog.Infof("Error shutting down NVML: %v", ret)
 		return errors.Errorf(nil, "Error shutting down NVML: %v", ret)
 	}
@@ -29,7 +33,7 @@ func (n *Nvidia) Release() error {
 
 func (n *Nvidia) GetDeviceCount() (int, error) {
 	count, ret := n.nvmllib.DeviceGetCount()
-	if ret != nvml.SUCCESS {
+	if !isSuccess(ret) {
 		return 0, errors.New("failed to get device count")
 	}
 
@@ -64,7 +68,20 @@ func (n *Nvidia) K8sResourceName() string {
 }
 
 func (n *Nvidia) GetDeviceMemoryUtil(idx int) (float64, error) {
-	return 0, nil
+	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
+	if !isSuccess(r) {
+		return 0, errors.Errorf(nil, "Get DeviceHandleByIndex error")
+	}
+	memoryInfo, r := n.nvmllib.DeviceGetMemoryInfo(device)
+	klog.Infof("Get MemoryInfo %v", memoryInfo)
+	if !isSuccess(r) {
+		return 0, errors.Errorf(nil, "Get MemoryInfo error")
+	}
+	if memoryInfo.Total == 0 {
+		return 0, errors.Errorf(nil, "MemoryInfo total is 0")
+	}
+
+	return float64(memoryInfo.Used) / float64(memoryInfo.Total), nil
 }
 
 func NewNvidia() (device.Device, error) {
@@ -72,7 +89,7 @@ func NewNvidia() (device.Device, error) {
 		nvml.WithLibraryPath(("libnvidia-ml.so")),
 	)
 	ret := nvmllib.Init()
-	if ret != nvml.SUCCESS {
+	if !isSuccess(ret) {
 		return nil, fmt.Errorf("failed to initialize NVML: %v", ret)
 	}
 

@@ -1,6 +1,7 @@
 package collector
 
 import (
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
 	"strconv"
 	"time"
 
@@ -64,6 +65,11 @@ func getMetric() map[string]metric {
 
 func NewCollector(nodeName string) (prometheus.Collector, error) {
 	device, err := enflame.NewEnflame()
+	if err == nil {
+		goto start
+	}
+
+	device, err = nvidia.NewNvidia()
 	if err == nil {
 		goto start
 	}
