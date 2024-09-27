@@ -86,7 +86,7 @@ func (n *Nvidia) GetDeviceMemoryUtil(idx int) (float64, error) {
 
 func NewNvidia() (device.Device, error) {
 	nvmllib := nvml.New(
-		nvml.WithLibraryPath(("libnvidia-ml.so")),
+		nvml.WithLibraryPath("libnvidia-ml.so"),
 	)
 	ret := nvmllib.Init()
 	if !isSuccess(ret) {
