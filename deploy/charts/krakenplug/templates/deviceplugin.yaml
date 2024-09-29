@@ -17,7 +17,7 @@ spec:
         - name: {{ .Chart.Name }}
           securityContext:
             privileged: true
-          #image: "deviceexporter:v1.0"
+          #image: "deviceplugin:v1.0"
           image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
           volumeMounts:
             - name: device-plugin

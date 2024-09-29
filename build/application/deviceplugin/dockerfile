@@ -2,10 +2,8 @@ from swr.cn-south-1.myhuaweicloud.com/krakenplug/builder:v1.0 as builder
 WORKDIR /app
 COPY ./thirdparty/go-eflib/go.mod ./thirdparty/go-eflib/
 RUN cd ./thirdparty/go-eflib && go mod download
-COPY ./common/go.mod ./common/go.sum ./common/
-RUN cd ./common && go mod download
-COPY ./deviceplugin/go.mod ./deviceplugin/go.sum ./deviceplugin/
-RUN cd ./deviceplugin && go mod download
+COPY ./go.mod ./go.sum ./
+RUN cd ./ && go mod download
 COPY ./ ./
 
 RUN make deviceplugin_build binary_dir="/app/bin"
