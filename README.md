@@ -1,6 +1,6 @@
 # KrakenPlug
 
-**KrakenPlug**是人工智能集群中管理异构AI计算设备的插件和工具集，其中异构设备插件实现AI设备注册Kubernets、设备分配、健康状态上报等功能；异构设备发现插件将AI设备型号、个数等信息通过label的方式添加到Kubernets Node中以供业务平台实现精细化管理；异构设备Prometheus Exporter可实时获取AI设备的利用率、显存、温度等运行指标。
+**KrakenPlug**是人工智能集群中管理异构AI计算设备的插件和工具集，其中异构设备插件实现AI设备注册Kubernetes、设备分配、健康状态上报等功能；异构设备发现插件将AI设备型号、个数等信息通过label的方式添加到Kubernetes Node中以供业务平台实现精细化管理；异构设备Prometheus Exporter可实时获取AI设备的利用率、显存、温度等运行指标。
 
 ## 安装部署
 
