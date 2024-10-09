@@ -104,7 +104,7 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	}
 	klog.Infof("GetDeviceToPodInfo: %v", podInfo)
 	c.collectDeviceUtil(ch, podInfo)
-	c.collectDeviceMemoryUtil(ch, podInfo)
+	c.collectDeviceMemory(ch, podInfo)
 }
 
 func (c *collector) getLabelValues(labels []string, values *labelValues) []string {
@@ -146,7 +146,7 @@ func (c *collector) collectDeviceUtil(ch chan<- prometheus.Metric, podInfo map[s
 	}
 }
 
-func (c *collector) collectDeviceMemoryUtil(ch chan<- prometheus.Metric, podInfo map[string]podresources.PodInfo) {
+func (c *collector) collectDeviceMemory(ch chan<- prometheus.Metric, podInfo map[string]podresources.PodInfo) {
 	for i := 0; i < c.deviceCount; i++ {
 		memoryInfo, err := c.device.GetDeviceMemoryInfo(i)
 		if err != nil {
