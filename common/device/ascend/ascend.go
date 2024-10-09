@@ -17,11 +17,11 @@ type Ascend struct {
 	dmgr devmanager.DeviceInterface
 }
 
-func (c *Ascend) GetDeviceMemoryUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	return nil, errors.New("not implement")
 }
 
-func (c *Ascend) GetDeviceUtil(idx int) (float64, error) {
+func (c *Ascend) GetDeviceUtil(idx int) (int, error) {
 	return 0, errors.New("not implement")
 }
 

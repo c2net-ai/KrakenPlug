@@ -23,12 +23,13 @@ var (
 )
 
 const (
-	labelNodeName    = "node_name"
-	labelPod         = "pod"
-	labelDeviceIndex = "device_index"
-	labelVendor      = "vendor"
-	metricDeviceUtil = "krakenplug_device_util"
-	metricMemoryUtil = "krakenplug_memory_util"
+	labelNodeName     = "node_name"
+	labelPod          = "pod"
+	labelDeviceIndex  = "device_index"
+	labelVendor       = "vendor"
+	metricDeviceUtil  = "krakenplug_device_util"
+	metricMemoryUsed  = "krakenplug_memory_used"
+	metricMemoryTotal = "krakenplug_memory_total"
 )
 
 type collector struct {
@@ -57,7 +58,9 @@ func getMetric() map[string]metric {
 
 	metrics[metricDeviceUtil] = metric{desc: prometheus.NewDesc(metricDeviceUtil, "device util", utilLabels, nil),
 		labels: utilLabels}
-	metrics[metricMemoryUtil] = metric{desc: prometheus.NewDesc(metricMemoryUtil, "memory util", utilLabels, nil),
+	metrics[metricMemoryUsed] = metric{desc: prometheus.NewDesc(metricMemoryUsed, "memory free", utilLabels, nil),
+		labels: utilLabels}
+	metrics[metricMemoryTotal] = metric{desc: prometheus.NewDesc(metricMemoryTotal, "memory total", utilLabels, nil),
 		labels: utilLabels}
 
 	return metrics
@@ -139,13 +142,13 @@ func (c *collector) collectDeviceUtil(ch chan<- prometheus.Metric, podInfo map[s
 			values.Pod = info.Pod
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceUtil].desc, prometheus.GaugeValue, util, c.getLabelValues(c.metrics[metricDeviceUtil].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceUtil].desc, prometheus.GaugeValue, float64(util), c.getLabelValues(c.metrics[metricDeviceUtil].labels, values)...)
 	}
 }
 
 func (c *collector) collectDeviceMemoryUtil(ch chan<- prometheus.Metric, podInfo map[string]podresources.PodInfo) {
 	for i := 0; i < c.deviceCount; i++ {
-		util, err := c.device.GetDeviceMemoryUtil(i)
+		memoryInfo, err := c.device.GetDeviceMemoryInfo(i)
 		if err != nil {
 			klog.Errorf("GetDeviceUtil error: %v", err)
 			continue
@@ -160,7 +163,9 @@ func (c *collector) collectDeviceMemoryUtil(ch chan<- prometheus.Metric, podInfo
 			values.Pod = info.Pod
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryUtil].desc, prometheus.GaugeValue, util, c.getLabelValues(c.metrics[metricMemoryUtil].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryUsed].desc, prometheus.GaugeValue, float64(memoryInfo.Used), c.getLabelValues(c.metrics[metricMemoryUsed].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryTotal].desc, prometheus.GaugeValue, float64(memoryInfo.Total), c.getLabelValues(c.metrics[metricMemoryTotal].labels, values)...)
+
 	}
 }
 

@@ -21,11 +21,11 @@ type Cambricon struct {
 	handles []unsafe.Pointer
 }
 
-func (c *Cambricon) GetDeviceMemoryUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Cambricon) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	return nil, errors.New("not implement")
 }
 
-func (c *Cambricon) GetDeviceUtil(idx int) (float64, error) {
+func (c *Cambricon) GetDeviceUtil(idx int) (int, error) {
 	return 0, errors.New("not implement")
 }
 

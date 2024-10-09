@@ -4,8 +4,8 @@ import (
 	"fmt"
 	eflib "go-eflib"
 	"go-eflib/efml"
-
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+	"math"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 )
@@ -13,18 +13,22 @@ import (
 type Enflame struct {
 }
 
-func (c *Enflame) GetDeviceMemoryUtil(idx int) (float64, error) {
-	util, err := eflib.GetDeviceMemoryUsage(efml.Handle{
+func (c *Enflame) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	_, total, used, err := eflib.GetDeviceMemoryInfo(efml.Handle{
 		Dev_Idx: uint(idx),
 	})
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
-	return float64(util), nil
+	return &device.MemInfo{
+		Total: uint32(total),
+		Used:  uint32(used),
+	}, nil
+
 }
 
-func (c *Enflame) GetDeviceUtil(idx int) (float64, error) {
+func (c *Enflame) GetDeviceUtil(idx int) (int, error) {
 	util, err := eflib.GetDeviceGcuUsage(efml.Handle{
 		Dev_Idx: uint(idx),
 	})
@@ -32,7 +36,7 @@ func (c *Enflame) GetDeviceUtil(idx int) (float64, error) {
 		return 0, err
 	}
 
-	return float64(util), nil
+	return int(math.Round(float64(util))), nil
 }
 
 func (c *Enflame) IsDeviceHealthy(idx int) (bool, error) {
