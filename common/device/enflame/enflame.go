@@ -85,7 +85,7 @@ func (c *Enflame) GetDeviceCount() (int, error) {
 }
 
 func (c *Enflame) Name() string {
-	return "enflame"
+	return device.Enflame
 }
 
 func (c *Enflame) K8sResourceName() string {

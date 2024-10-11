@@ -1,15 +1,13 @@
 package collector
 
 import (
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"strconv"
 	"time"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
@@ -67,19 +65,11 @@ func getMetric() map[string]metric {
 }
 
 func NewCollector(nodeName string) (prometheus.Collector, error) {
-	device, err := enflame.NewEnflame()
-	if err == nil {
-		goto start
+	device, err := util.NewDevice()
+	if err != nil {
+		return nil, errors.Errorf(err, "new device error")
 	}
 
-	device, err = nvidia.NewNvidia()
-	if err == nil {
-		goto start
-	}
-
-	return nil, err
-
-start:
 	klog.Infof("%s device found", device.Name())
 
 	c := &collector{

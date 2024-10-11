@@ -135,7 +135,7 @@ func hostDeviceExistsWithPrefix(prefix string) bool {
 }
 
 func (c *Cambricon) Name() string {
-	return "cambricon"
+	return device.Cambricon
 }
 
 func (c *Cambricon) K8sResourceName() string {

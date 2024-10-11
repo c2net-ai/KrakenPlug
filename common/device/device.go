@@ -1,9 +1,16 @@
 package device
 
+import "C"
 import (
 	"fmt"
-
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+)
+
+const (
+	Enflame   = "enflame"
+	Cambricon = "cambricon"
+	Ascend    = "ascend"
+	Nvidia    = "nvidia"
 )
 
 type MemInfo struct {

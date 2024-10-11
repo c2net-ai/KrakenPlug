@@ -4,20 +4,16 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"os"
 	"path"
 	"strconv"
 	"time"
 
-	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/ascend"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame"
-
 	"google.golang.org/grpc"
+	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 )
 
 type Server struct {
@@ -31,29 +27,11 @@ type Server struct {
 
 // NewServer returns an initialized Server
 func NewServer() (*Server, error) {
-	device, err := ascend.NewAscend()
-	if err == nil {
-		goto start
+	device, err := util.NewDevice()
+	if err != nil {
+		return nil, err
 	}
 
-	device, err = cambricon.NewCambricon()
-	if err == nil {
-		goto start
-	}
-
-	device, err = enflame.NewEnflame()
-	if err == nil {
-		goto start
-	}
-
-	device, err = nvidia.NewNvidia()
-	if err == nil {
-		goto start
-	}
-
-	return nil, err
-
-start:
 	s := &Server{
 		socket: ServerSock,
 		stop:   make(chan interface{}),
