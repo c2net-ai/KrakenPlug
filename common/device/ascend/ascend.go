@@ -19,14 +19,14 @@ type Ascend struct {
 }
 
 func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
-	hbmInfo, err := c.dmgr.DcMgr.DcGetHbmInfo(0, int32(idx))
+	hbmInfo, err := c.dmgr.GetDeviceHbmInfo(int32(idx))
 	klog.Infof("memorySize: %d, usage: %d", hbmInfo.MemorySize, hbmInfo.Usage)
 	if err != nil {
 		return nil, errors.Errorf(nil, "failed to get device %d hbm info: %v", idx, err)
 	}
 	return &device.MemInfo{
-		Total: uint32(hbmInfo.MemorySize) / 1024,
-		Used:  uint32(hbmInfo.Usage) / 1024,
+		Total: uint32(hbmInfo.MemorySize),
+		Used:  uint32(hbmInfo.Usage),
 	}, nil
 }
 
@@ -64,7 +64,7 @@ func initHwLogger() error {
 
 func NewAscend() (device.Device, error) {
 	initHwLogger()
-	dmgr, err := devmanager.GetDeviceManager()
+	dmgr, err := devmanager.AutoInit("")
 	if err != nil {
 		return nil, err
 	}
