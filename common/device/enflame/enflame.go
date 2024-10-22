@@ -2,11 +2,10 @@ package enflame
 
 import (
 	"fmt"
-	eflib "go-eflib"
-	"go-eflib/efml"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"math"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame/lib"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 )
 
@@ -14,29 +13,31 @@ type Enflame struct {
 }
 
 func (c *Enflame) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
-	_, total, used, err := eflib.GetDeviceMemoryInfo(efml.Handle{
+	handle := lib.Handle{
 		Dev_Idx: uint(idx),
-	})
+	}
+	memInfo, err := handle.GetDevMem()
 	if err != nil {
 		return nil, err
 	}
 
 	return &device.MemInfo{
-		Total: uint32(total),
-		Used:  uint32(used),
+		Total: uint32(memInfo.Mem_Total_Size / 1024 / 1024),
+		Used:  uint32(memInfo.Mem_Used),
 	}, nil
 
 }
 
 func (c *Enflame) GetDeviceUtil(idx int) (int, error) {
-	util, err := eflib.GetDeviceGcuUsage(efml.Handle{
+	handle := lib.Handle{
 		Dev_Idx: uint(idx),
-	})
+	}
+	dtuUsage, err := handle.GetDevDtuUsage()
 	if err != nil {
 		return 0, err
 	}
 
-	return int(math.Round(float64(util))), nil
+	return int(math.Round(float64(dtuUsage))), nil
 }
 
 func (c *Enflame) IsDeviceHealthy(idx int) (bool, error) {
@@ -55,7 +56,7 @@ func (c *Enflame) GetContainerAllocateResponse(idxs []int) (*pluginapi.Container
 }
 
 func NewEnflame() (device.Device, error) {
-	err := eflib.Init(false)
+	err := lib.InitV2(true)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize efml: %v", err)
 	}
@@ -71,12 +72,12 @@ const (
 )
 
 func (c *Enflame) Release() error {
-	eflib.Shutdown()
+	lib.Shutdown()
 	return nil
 }
 
 func (c *Enflame) GetDeviceCount() (int, error) {
-	count, err := eflib.GetDeviceCount()
+	count, err := lib.GetDevCount()
 	if err != nil {
 		return 0, fmt.Errorf("failed to get device count: %v", err)
 	}

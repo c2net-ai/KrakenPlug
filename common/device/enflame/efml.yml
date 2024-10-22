@@ -1,0 +1,29 @@
+---
+GENERATOR:
+  PackageName: lib
+  PackageDescription: ""
+  PackageLicense: ""
+  Includes: [efml.h]
+  FlagGroups:
+    - {name: "LDFLAGS", traits: ["linux"], flags: ["-Wl,--export-dynamic","-Wl,--unresolved-symbols=ignore-in-object-files"]}
+    - {name: "LDFLAGS", traits: ["darwin"], flags: ["-Wl,-undefined,dynamic_lookup"]}
+
+PARSER:
+  IncludePaths: [/usr/include]
+  SourcesPaths: [lib/efml.h]
+
+
+#TRANSLATOR:
+#  PtrTips:
+#    function:
+#      - {target: "^Efml", default: "ref"}
+#  MemTips:
+#    - {target: "^Efml", default: "raw"}
+#  Rules:
+#    function:
+#      - {action: accept, from: "^Efml"}
+#      - {action: accept, from: "^efml"}
+#      - {action: replace, from: "^efml"}
+#      - {action: replace, from: "^Efml"}
+#      - {action: replace, from: "_t$"}
+#      - {transform: export}

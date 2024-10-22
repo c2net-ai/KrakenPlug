@@ -5,7 +5,7 @@
 //	Enflame Tech, All Rights Reserved. 2023 Copyright (C)
 //
 // ///////////////////////////////////////////////////////////////////////////
-package efml
+package lib
 
 // #cgo LDFLAGS: -ldl  -Wl,--unresolved-symbols=ignore-in-object-files
 // #include "stdbool.h"
@@ -14,7 +14,6 @@ import "C"
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"os/signal"
@@ -36,12 +35,6 @@ type DevThermalInfo struct {
 	Cur_Dev_Temp  float32
 	Cur_Hbm0_Temp float32
 	Cur_Hbm1_Temp float32
-}
-
-type DevThermalInfoV2 struct {
-	Cur_Asic_Temp  float32
-	Cur_Mem_Temp   float32
-	Cur_Board_Temp float32
 }
 
 type DevPowerInfo struct {
@@ -125,6 +118,12 @@ type DevEccStatus struct {
 	Ecnt_db uint
 }
 
+type ProcessInfo struct {
+	Pid         uint
+	DevMemUsage uint64
+	SysMemUsage uint64
+}
+
 type DevRmaStatus struct {
 	SupportRma bool
 	Flags      bool
@@ -135,51 +134,6 @@ type DevRmaDetails struct {
 	Flags      bool
 	Dbe        uint
 }
-
-type ProcessInfo struct {
-	Pid         uint
-	DevMemUsage uint64
-	SysMemUsage uint64
-}
-
-type HwArch int
-
-const (
-	GCU200  HwArch = 0
-	GCU210  HwArch = 1
-	GCU300  HwArch = 2
-	Unknown HwArch = 65535
-)
-
-type EfmlError struct {
-	ErrCode int
-	Msg     string
-}
-
-func (e EfmlError) Error() string {
-	return e.Msg
-}
-func (e EfmlError) Code() int {
-	return e.ErrCode
-}
-
-var (
-	ErrSuccess             = EfmlError{int(C.EFML_SUCCESS), "No error"}
-	ErrUnInit              = EfmlError{int(C.EFML_ERROR_UNINITIALIZED), "Error, device un-initialized"}
-	ErrInvalidArg          = EfmlError{int(C.EFML_ERROR_INVALID_ARGUMENT), "Error, invalid argument"}
-	ErrUnSupport           = EfmlError{int(C.EFML_ERROR_NOT_SUPPORTED), "Error, not supported operation"}
-	ErrLibNotFound         = EfmlError{int(C.EFML_ERROR_LIBRARY_NOT_FOUND), "Error, library not found"}
-	ErrInvalidErrCode      = EfmlError{int(C.EFML_ERROR_INVALID_ERROR_CODE), "Error, invalid error code"}
-	ErrDriverNotLoad       = EfmlError{int(C.EFML_ERROR_DRIVER_NOT_LOADED), "Error, driver not loaded"}
-	ErrEslPortNum          = EfmlError{int(C.EFML_ERROR_ESL_PORT_NUMBER_ERR), "Error, esl port number error"}
-	ErrInvalidInput        = EfmlError{int(C.EFML_ERROR_INVALID_INPUT), "Error, invalid input"}
-	ErrFuncNotFound        = EfmlError{int(C.EFML_ERROR_FUNCTION_NOT_FOUND), "Error, func not found"}
-	ErrFailedOpenDriver    = EfmlError{int(C.EFML_ERROR_OPEN_DRIVER_VERSION), "Error, failed to open driver version"}
-	ErrDriverNotCompatible = EfmlError{int(C.EFML_ERROR_DRIVER_NOT_COMPATIBLE), "Error, driver version is incompatible"}
-	ErrTimeout             = EfmlError{int(C.EFML_ERROR_TIMEOUT), "Error, timeout"}
-	ErrOpFail              = EfmlError{int(C.EFML_ERROR_FAIL), "Error, operate fail"}
-	ErrMax                 = EfmlError{int(C.EFML_ERROR_MAX), "Error, this is the max error code"}
-)
 
 // utils function
 func uintPtr(c C.uint) *uint {
@@ -209,14 +163,10 @@ func errorString(ret C.efmlReturn_t) error {
 		return nil
 	}
 
-	if ret == C.EFML_ERROR_LIBRARY_NOT_FOUND {
-		return errors.New("can not find library")
-	}
-
 	C.EfmlErrorString(ret, &cerr[0])
 	err := C.GoString(&cerr[0])
 
-	return EfmlError{int(ret), err}
+	return fmt.Errorf("%v", err)
 }
 
 func (h Handle) GetLogicId() (uint, error) {
@@ -252,8 +202,7 @@ func Init() error {
 	// SIGUSR1 for PSE efml have special use
 	signal.Ignore(syscall.SIGUSR1)
 	signal.Ignore(syscall.SIGUSR2)
-	noDriver := false
-	return errorString(dl.InitV2(noDriver))
+	return errorString(dl.Init())
 }
 
 /*
@@ -302,7 +251,7 @@ func getClusterCount_v1(dev_idx uint) (uint, error) {
 	var cluster_cnt C.uint
 	r := C.EfmlGetClusterCount(C.uint(dev_idx), &cluster_cnt)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(cluster_cnt), errorString(r)
@@ -319,7 +268,7 @@ func getDevCount_v1() (uint, error) {
 	var dev_cnt C.uint
 	r := C.EfmlGetDevCount(&dev_cnt)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(dev_cnt), errorString(r)
@@ -334,7 +283,7 @@ func GetDevCount() (uint, error) {
 	var dev_cnt C.uint
 	r := C.EfmlGetDevCount(&dev_cnt)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(dev_cnt), errorString(r)
@@ -368,7 +317,7 @@ func (h Handle) GetDevTemp() (thermalInfo *DevThermalInfo, err error) {
 
 	r := C.EfmlGetDevTemp(C.uint(h.Dev_Idx), &thermal)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -382,33 +331,6 @@ func (h Handle) GetDevTemp() (thermalInfo *DevThermalInfo, err error) {
 }
 
 /*
- * @brief Enflame Management Library get the device temperature.
- */
-func (h Handle) GetDevTempV2() (thermalInfo *DevThermalInfoV2, err error) {
-	var hwArch HwArch = Unknown
-	hwArch, err = h.GetHwArch()
-	if hwArch == GCU300 {
-		var thermal C.efmlDevThermalInfoV2_t
-		r := C.EfmlGetDevTempV2(C.uint(h.Dev_Idx), &thermal)
-		err = errorString(r)
-		thermalInfo = &DevThermalInfoV2{
-			Cur_Asic_Temp:  float32(thermal.cur_asic_temp),
-			Cur_Mem_Temp:   float32(thermal.cur_mem_temp),
-			Cur_Board_Temp: float32(thermal.cur_board_temp),
-		}
-	} else {
-		var thermalV1 *DevThermalInfo
-		thermalV1, err = h.GetDevTemp()
-		thermalInfo = &DevThermalInfoV2{
-			Cur_Asic_Temp:  thermalV1.Cur_Dev_Temp,
-			Cur_Mem_Temp:   thermalV1.Cur_Hbm0_Temp,
-			Cur_Board_Temp: thermalV1.Cur_Dev_Temp,
-		}
-	}
-	return
-}
-
-/*
  * @brief Enflame Management Library get the device current power consumption.
  */
 func (h Handle) GetDevPwr() (powerInfo *DevPowerInfo, err error) {
@@ -416,7 +338,7 @@ func (h Handle) GetDevPwr() (powerInfo *DevPowerInfo, err error) {
 
 	r := C.EfmlGetDevPwr(C.uint(h.Dev_Idx), &power)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -435,7 +357,7 @@ func (h Handle) GetDevDpmLevel() (uint, error) {
 	var dpm_Level C.uint
 	r := C.EfmlGetDevDpmLevel(C.uint(h.Dev_Idx), &dpm_Level)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(dpm_Level), errorString(r)
@@ -449,7 +371,7 @@ func (h Handle) GetDevMem() (memInfo *DevMemInfo, err error) {
 
 	r := C.EfmlGetDevMem(C.uint(h.Dev_Idx), &mem)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -468,7 +390,7 @@ func (h Handle) GetDevDtuUsage() (float32, error) {
 	var usage C.float
 	r := C.EfmlGetDevDtuUsage(C.uint(h.Dev_Idx), &usage)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return float32(usage), errorString(r)
@@ -481,7 +403,7 @@ func (h Handle) GetDevDtuUsageAsync() (float32, error) {
 	var usage C.float
 	r := C.EfmlGetDevDtuUsageAsync(C.uint(h.Dev_Idx), &usage)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return float32(usage), errorString(r)
@@ -495,7 +417,7 @@ func (h Handle) GetClusterUsage(cluster_idx uint) (float32, error) {
 	var usage C.float
 	r := C.EfmlGetDevClusterUsage(C.uint(h.Dev_Idx), C.uint(cluster_idx), &usage)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return float32(usage), errorString(r)
@@ -509,10 +431,11 @@ func (h Handle) GetDevClusterHbmMem(cluster_idx uint) (memInfo *ClusterHbmMemInf
 	var mem C.efmlClusterHbmMemInfo_t
 
 	r := C.EfmlGetDevClusterHbmMem(C.uint(h.Dev_Idx), C.uint(cluster_idx), &mem)
-	err = errorString(r)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, err
+		return nil, nil
 	}
+
+	err = errorString(r)
 
 	memInfo = &ClusterHbmMemInfo{
 		Mem_Total_Size: uint(mem.mem_total_size),
@@ -528,14 +451,11 @@ func (h Handle) GetDevClk() (clkInfo *DevClkInfo, err error) {
 	var clk C.efmlDevClkInfo_t
 
 	r := C.EfmlGetDevClk(C.uint(h.Dev_Idx), &clk)
-	err = errorString(r)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		clkInfo = &DevClkInfo{
-			Cur_Hbm_Clock: uint(0),
-			Cur_Dtu_Clock: uint(clk.cur_dtu_clock),
-		}
-		return
+		return nil, nil
 	}
+
+	err = errorString(r)
 
 	clkInfo = &DevClkInfo{
 		Cur_Hbm_Clock: uint(clk.cur_hbm_clock),
@@ -552,7 +472,7 @@ func (h Handle) GetDevInfo() (devInfo *DeviceInfo, err error) {
 
 	r := C.EfmlGetDevInfo(C.uint(h.Dev_Idx), &dev)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -596,7 +516,7 @@ func (h Handle) GetDevPGCount() (uint, error) {
 	var pg_cnt C.uint
 	r := C.EfmlGetPGCount(C.uint(h.Dev_Idx), &pg_cnt)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(pg_cnt), errorString(r)
@@ -610,7 +530,7 @@ func (h Handle) GetPGUsage(pg_idx uint) (float32, error) {
 	var usage C.float
 	r := C.EfmlGetDevPGUsage(C.uint(h.Dev_Idx), C.uint(pg_idx), &usage)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return float32(usage), errorString(r)
@@ -624,7 +544,7 @@ func (h Handle) GetPGUsageAsync(pg_idx uint) (float32, error) {
 	var usage C.float
 	r := C.EfmlGetDevPGUsageAsync(C.uint(h.Dev_Idx), C.uint(pg_idx), &usage)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return float32(usage), errorString(r)
@@ -637,31 +557,19 @@ func (h Handle) GetPGUsageAsync(pg_idx uint) (float32, error) {
 func GetEvent(timeout_ms int) (event_info *EventInfo, err error) {
 	var event C.efmlEvent_t
 	r := C.EfmlGetEvent(C.int(timeout_ms), &event)
-	err = errorString(r)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, err
+		return nil, nil
 	} else if r == C.EFML_ERROR_TIMEOUT {
+		err = errorString(r)
 		return nil, err
 	}
+
+	err = errorString(r)
 
 	event_info = &EventInfo{
 		Id:   uint(C.uint(event.event_id)),
 		Type: uint(C.uint(event.event_type)),
 		Msg:  C.GoString(&event.event_msg[0]),
-	}
-	return
-}
-
-/**
- * @brief Enflame Management Library start listen device upstream message.
- *
- */
-func (h Handle) StartListenEvent() (err error) {
-	var hwArch HwArch = Unknown
-	hwArch, err = h.GetHwArch()
-	if hwArch == GCU300 {
-		r := C.EfmlStartListenEvent(C.uint(h.Dev_Idx))
-		err = errorString(r)
 	}
 	return
 }
@@ -690,7 +598,14 @@ func (h Handle) GetDevUuidFromDriver() (string, error) {
 }
 
 func (h Handle) GetDevUuid() (string, error) {
-	return h.getDevUuid_v1()
+	filePath, _ := h.GetBusId()
+	filePath += "/ssm/chipid"
+
+	if _, err := os.Lstat(filePath); err == nil {
+		return h.getDevUuid_v2()
+	} else {
+		return h.getDevUuid_v1()
+	}
 }
 
 /*
@@ -708,51 +623,10 @@ func (h Handle) GetPcieLinkSpeed() (uint, error) {
 
 	r := C.EfmlGetPcieLinkSpeed(C.uint(h.Dev_Idx), &linkSpeed)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(linkSpeed), errorString(r)
-}
-
-/*
- * @brief Enflame Management Library get device hardware arch.
- */
-func (h Handle) GetHwArch() (HwArch, error) {
-	// FIXME if efml1 enabled
-	var isEfml1EnabledHwArch bool = false
-	if isEfml1EnabledHwArch {
-		var hwArch C.efmlHwArch_t
-
-		r := C.EfmlGetHwArch(C.uint(h.Dev_Idx), &hwArch)
-		if r == C.EFML_ERROR_NOT_SUPPORTED {
-			return 0, errorString(r)
-		}
-		return HwArch(hwArch), errorString(r)
-	} else {
-		// WA
-		sku, err := h.GetDevSKU()
-		if err != nil {
-			return Unknown, err
-		} else {
-			var GCU3x = []string{
-				"s6",
-				"s6-m16",
-				"s6_m16",
-				"s60",
-				"s60-m24",
-				"s60_m24",
-				"s90",
-				"s90-m24",
-				"s90_m24",
-			}
-			for _, v := range GCU3x {
-				if strings.EqualFold(v, sku) {
-					return GCU300, nil
-				}
-			}
-			return GCU200, nil
-		}
-	}
 }
 
 /*
@@ -763,7 +637,7 @@ func (h Handle) GetPcieLinkWidth() (uint, error) {
 
 	r := C.EfmlGetPcieLinkWidth(C.uint(h.Dev_Idx), &linkWidth)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(linkWidth), errorString(r)
@@ -777,7 +651,7 @@ func (h Handle) GetPcieLinkInfo() (linkInfo *LinkInfo, err error) {
 
 	r := C.EfmlGetPcieLinkInfo(C.uint(h.Dev_Idx), &pcie_Linkinfo)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -799,7 +673,7 @@ func (h Handle) GetPcieThroughput() (throughputInfo *ThroughputInfo, err error) 
 
 	r := C.EfmlGetPcieThroughput(C.uint(h.Dev_Idx), &throughPut)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -820,7 +694,7 @@ func (h Handle) GetDevRmaStatus() (rmaStatus *DevRmaStatus, err error) {
 	var rma C.efmlRmaStatus_t
 	r := C.EfmlGetDevRmaStatus(C.uint(h.Dev_Idx), &rma)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -839,7 +713,7 @@ func (h Handle) GetDevRmaDetails() (rmaDetails *DevRmaDetails, err error) {
 	var rma C.efmlRmaDetails_t
 	r := C.EfmlGetDevRmaDetails(C.uint(h.Dev_Idx), &rma)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -859,7 +733,7 @@ func (h Handle) GetDevEccStatus() (eccStatus *DevEccStatus, err error) {
 	var ecc C.efmlEccStatus_t
 	r := C.EfmlGetDevEccStatus(C.uint(h.Dev_Idx), &ecc)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -881,7 +755,7 @@ func (h Handle) GetEslPortNum() (uint, error) {
 	var num C.uint
 	r := C.EfmlGetEslPortNum(C.uint(h.Dev_Idx), &num)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(num), errorString(r)
@@ -895,9 +769,9 @@ func (h Handle) GetEslPortInfo(port_id uint) (portInfo *EslPortInfo, err error) 
 
 	r := C.EfmlGetEslPortInfo(C.uint(h.Dev_Idx), C.uint(port_id), &ccixPort)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
-	err = errorString(r)
+
 	portInfo = &EslPortInfo{
 		Connected: uint(ccixPort.connected),
 		Uuid:      C.GoString(&ccixPort.uuid[0]),
@@ -932,7 +806,7 @@ func (h Handle) GetEslLinkInfo(port_id uint) (linkInfo *LinkInfo, err error) {
 
 	r := C.EfmlGetEslLinkInfo(C.uint(h.Dev_Idx), C.uint(port_id), &ccix_Linkinfo)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 	err = errorString(r)
 
@@ -953,7 +827,7 @@ func (h Handle) GetEslDtuId() (uint, error) {
 	var id C.uint
 	r := C.EfmlGetEslDtuId(C.uint(h.Dev_Idx), &id)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return 0, errorString(r)
+		return 0, nil
 	}
 
 	return uint(id), errorString(r)
@@ -967,7 +841,7 @@ func (h Handle) GetEslThroughput(port_id uint) (throughputInfo *ThroughputInfo, 
 
 	r := C.EfmlGetEslThroughput(C.uint(h.Dev_Idx), C.uint(port_id), &ccixThroughPut)
 	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, errorString(r)
+		return nil, nil
 	}
 
 	err = errorString(r)
@@ -1074,10 +948,10 @@ func GetDeviceHandleByIndex(dev_idx uint) (Handle, error) {
 	return h, nil
 }
 
-func (h Handle) GetDevSKU() (string, error) {
+func (h Handle) GetDevSKU(dev_idx uint) (string, error) {
 	var devSKU [szName]C.char
 
-	r := C.EfmlGetDevSKU(C.uint(h.Dev_Idx), &devSKU[0])
+	r := C.EfmlGetDevSKU(C.uint(dev_idx), &devSKU[0])
 	return C.GoString(&devSKU[0]), errorString(r)
 }
 
@@ -1102,11 +976,27 @@ func (h Handle) GetVdevList() (vdevList []uint, err error) {
 	var vDevIds [32]C.uint32_t
 	r := C.EfmlGetVdevList(C.uint(h.Dev_Idx), &vDevIds[0], &count)
 	err = errorString(r)
-	if r == C.EFML_ERROR_NOT_SUPPORTED {
-		return nil, err
-	}
 	for i := uint(0); i < uint(count); i++ {
 		vdevList = append(vdevList, uint(vDevIds[i]))
+	}
+
+	return
+}
+
+/*
+ * @brief Enflame Management Library get process info on device.
+ */
+func (h Handle) GetProcessInfo() (pInfos []ProcessInfo, err error) {
+	var count C.uint32_t
+	var processInfos [32]C.efmlProcessInfo_t
+	r := C.EfmlGetProcessInfo(C.uint(h.Dev_Idx), &count, &processInfos[0])
+	err = errorString(r)
+	for i := uint(0); i < uint(count); i++ {
+		pInfos = append(pInfos, ProcessInfo{
+			Pid:         uint(processInfos[i].pid),
+			DevMemUsage: uint64(processInfos[i].dev_mem_usage),
+			SysMemUsage: uint64(processInfos[i].sys_mem_usage),
+		})
 	}
 
 	return
@@ -1143,23 +1033,4 @@ func (h Handle) GetVdevDtuUsage(vdev_idx uint) (float32, error) {
 	}
 
 	return float32(usage), errorString(r)
-}
-
-/*
- * @brief Enflame Management Library get process info on device.
- */
-func (h Handle) GetProcessInfo() (pInfos []ProcessInfo, err error) {
-	var count C.uint32_t
-	var processInfos [64]C.efmlProcessInfo_t
-	r := C.EfmlGetProcessInfo(C.uint(h.Dev_Idx), &count, &processInfos[0])
-	err = errorString(r)
-	for i := uint(0); i < uint(count); i++ {
-		pInfos = append(pInfos, ProcessInfo{
-			Pid:         uint(processInfos[i].pid),
-			DevMemUsage: uint64(processInfos[i].dev_mem_usage),
-			SysMemUsage: uint64(processInfos[i].sys_mem_usage),
-		})
-	}
-
-	return
 }
