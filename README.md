@@ -64,9 +64,9 @@ helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 
 
 
-## 异构设备Prometheus Exporter
+## 异构设备Exporter
 
-异构设备Prometheus Exporter基于Prometheus 规范实现了Metrics接口，可实时获取AI设备的利用率、显存、温度等运行指标信息。
+异构设备Exporter基于Prometheus 规范实现了Metrics接口，可实时获取AI设备的利用率、显存、温度等运行指标信息。
 
 | **指标名称**                   | **指标说明**     | **指标标签字段**                     | **字段类型** | **指标数值** |
 | ------------------------------ | ---------------- | ------------------------------------ | ------------ | ------------ |
