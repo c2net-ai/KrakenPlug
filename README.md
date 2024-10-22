@@ -1,6 +1,12 @@
 # KrakenPlug
 
-**KrakenPlug**是人工智能集群中管理异构AI计算设备的插件和工具集，其中异构设备插件实现AI设备注册Kubernetes、设备分配、健康状态上报等功能；异构设备发现插件将AI设备型号、个数等信息通过label的方式添加到Kubernetes Node中以供业务平台实现精细化管理；异构设备Prometheus Exporter可实时获取AI设备的利用率、显存、温度等运行指标。
+KrakenPlug是人工智能集群中管理异构AI计算设备的插件和工具集，包含异构设备插件、异构设备Prometheus Exporter、异构设备发现等，AI集群管理平台可以通过集成KrakenPlug减少相关软件开发工作量，快速获得异构AI设备管理的能力。
+
+## 项目架构
+
+![architecture](./docs/imgs/architecture.png)
+
+
 
 ## 安装部署
 
@@ -43,3 +49,35 @@ helm install krakenplug -n krakenplug ./  --values values.yaml
 ```
 helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 ```
+
+
+
+## 异构设备插件
+
+异构设备插件主要是基于Kubernetes设备插件机制，提供各类AI设备资源的发现、分配和健康状态上报功能，使Kubernetes能够管理各类AI设备资源，用户创建Pod时通过指定AI设备资源名称来使用对应资源。
+
+| AI设备厂商名称 | Kubernetes资源名称             |
+| -------------- | ------------------------------ |
+| Nvidia         | krakenplug.pcl.ac.cn/nvidia    |
+| Ascend         | krakenplug.pcl.ac.cn/ascend    |
+| Cambricon      | krakenplug.pcl.ac.cn/cambricon |
+
+
+
+## 异构设备Prometheus Exporter
+
+异构设备Prometheus Exporter基于Prometheus 规范实现了Metrics接口，可实时获取AI设备的利用率、显存、温度等运行指标信息。
+
+| **指标名称**                   | **指标说明**     | **指标标签字段**                     | **字段类型** | **指标数值** |
+| ------------------------------ | ---------------- | ------------------------------------ | ------------ | ------------ |
+| krakenplug_device_util         | 设备资源利用率   | node_name、pod、device_index、vendor | integer      | 单位：百分比 |
+| krakenplug_device_memory_used  | 设备显存已使用量 | node_name、pod、device_index、vendor | integer      | 单位：MB     |
+| krakenplug_device_memory_total | 设备显存总量     | node_name、pod、device_index、vendor | integer      | 单位：MB     |
+
+| 标签字段名称 | 标签字段说明                                |
+| ------------ | ------------------------------------------- |
+| node_name    | 节点名称                                    |
+| pod          | pod名称                                     |
+| device_index | 设备索引                                    |
+| vendor       | 设备厂商，当前支持nvidia、ascend、cambricon |
+

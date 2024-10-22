@@ -1,0 +1,29 @@
+---
+GENERATOR:
+  PackageName: lib
+  PackageDescription: ""
+  PackageLicense: ""
+  Includes: [cndev.h]
+  FlagGroups:
+    - {name: "LDFLAGS", traits: ["linux"], flags: ["-Wl,--export-dynamic","-Wl,--unresolved-symbols=ignore-in-object-files"]}
+    - {name: "LDFLAGS", traits: ["darwin"], flags: ["-Wl,-undefined,dynamic_lookup"]}
+
+PARSER:
+  IncludePaths: [/usr/include]
+  SourcesPaths: [lib/cndev.h]
+
+
+TRANSLATOR:
+  PtrTips:
+    function:
+      - {target: "^cndev", default: "ref"}
+  MemTips:
+    - {target: "^cndev", default: "raw"}
+  Rules:
+    global:
+      - {action: accept, from: "^cndev"}
+      - {action: accept, from: "^CNDEV_"}
+      - {action: replace, from: "^CNDEV_"}
+      - {action: replace, from: "^cndev"}
+#      - {action: replace, from: "_t$"}
+      - {transform: export}

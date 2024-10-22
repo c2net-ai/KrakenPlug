@@ -1,16 +1,13 @@
 package cambricon
 
 // #cgo LDFLAGS: -ldl -Wl,--unresolved-symbols=ignore-in-object-files
-// #include "cndev.h"
 // #include <dlfcn.h>
 import "C"
 import (
 	"fmt"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon/lib"
 	"path/filepath"
-	"time"
 	"unsafe"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
@@ -21,28 +18,48 @@ type Cambricon struct {
 	handles []unsafe.Pointer
 }
 
-func (c *Cambricon) GetDeviceMemoryUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Cambricon) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	memoryInfo := &lib.MemoryInfo_t{Version: version}
+	ret := lib.GetMemoryUsage(memoryInfo, int32(idx))
+	err := errorString(ret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &device.MemInfo{
+		Total: uint32(memoryInfo.PhysicalMemoryTotal),
+		Used:  uint32(memoryInfo.PhysicalMemoryUsed),
+	}, err
 }
 
-func (c *Cambricon) GetDeviceUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Cambricon) GetDeviceUtil(idx int) (int, error) {
+	utilizationInfo := &lib.UtilizationInfo_t{
+		Version: version,
+	}
+	ret := lib.GetDeviceUtilizationInfo(utilizationInfo, int32(idx))
+	err := errorString(ret)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(utilizationInfo.AverageCoreUtilization), err
 }
 
 func (c *Cambricon) IsDeviceHealthy(idx int) (bool, error) {
-	var ret C.cndevRet_t
-	var cardHealthState C.cndevCardHealthState_t
-	var healthCode int
-	cardHealthState.version = C.int(version)
-	// sleep for some seconds
-	time.Sleep(time.Duration(1) * time.Second)
-	ret = C.cndevGetCardHealthState(&cardHealthState, C.int(idx))
-	err := errorString(ret)
-	if err != nil {
-		return false, err
-	}
-	healthCode = int(cardHealthState.health)
-	return !(healthCode == 0), nil
+	//var ret lib.Ret_t
+	//var cardHealthState lib.CardHealthState_t
+	//var healthCode int
+	//cardHealthState.Version = version
+	//// sleep for some seconds
+	//time.Sleep(time.Duration(1) * time.Second)
+	//ret = lib.GetCardHealthState(&cardHealthState, int32(idx))
+	//err := errorString(ret)
+	//if err != nil {
+	//	return false, err
+	//}
+	//healthCode = int(cardHealthState.Health)
+	//return !(healthCode == 0), nil
+	return true, nil
 }
 
 func (c *Cambricon) GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerAllocateResponse, error) {
@@ -77,7 +94,8 @@ func NewCambricon() (device.Device, error) {
 	if handle == C.NULL {
 		return nil, fmt.Errorf("load so failed")
 	}
-	r := C.cndevInit(C.int(0))
+
+	r := lib.Init(0)
 	err := errorString(r)
 	if err != nil {
 		return nil, err
@@ -95,17 +113,17 @@ const (
 	cnmonPath            = "/usr/bin/cnmon"
 )
 
-func errorString(cRet C.cndevRet_t) error {
-	if cRet == C.CNDEV_SUCCESS {
+func errorString(cRet lib.Ret_t) error {
+	if cRet == lib.SUCCESS {
 		return nil
 	}
-	err := C.GoString(C.cndevGetErrorString(cRet))
+	err := lib.GetErrorString(cRet)
 	return fmt.Errorf("cndev: %v", err)
 }
 
 func (c *Cambricon) Release() error {
-	ret := C.cndevRelease()
-	if ret != C.CNDEV_SUCCESS {
+	ret := lib.Release()
+	if ret != lib.SUCCESS {
 		return errorString(ret)
 	}
 
@@ -119,10 +137,11 @@ func (c *Cambricon) Release() error {
 }
 
 func (c *Cambricon) GetDeviceCount() (int, error) {
-	var cardInfos C.cndevCardInfo_t
-	cardInfos.version = C.int(version)
-	r := C.cndevGetDeviceCount(&cardInfos)
-	return int(cardInfos.number), errorString(r)
+	cardInfos := &lib.CardInfo_t{
+		Version: version,
+	}
+	r := lib.GetDeviceCount(cardInfos)
+	return int(cardInfos.Number), errorString(r)
 }
 
 func hostDeviceExistsWithPrefix(prefix string) bool {
@@ -135,7 +154,7 @@ func hostDeviceExistsWithPrefix(prefix string) bool {
 }
 
 func (c *Cambricon) Name() string {
-	return "cambricon"
+	return device.Cambricon
 }
 
 func (c *Cambricon) K8sResourceName() string {

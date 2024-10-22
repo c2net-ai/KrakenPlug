@@ -3,7 +3,6 @@ package nvidia
 import (
 	"fmt"
 	"k8s.io/klog/v2"
-
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
@@ -15,6 +14,21 @@ import (
 
 type Nvidia struct {
 	nvmllib nvml.Interface
+}
+
+func (n *Nvidia) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	d, r := n.nvmllib.DeviceGetHandleByIndex(idx)
+	if !isSuccess(r) {
+		return nil, errors.Errorf(nil, "Get DeviceHandleByIndex error")
+	}
+	memoryInfo, r := n.nvmllib.DeviceGetMemoryInfo_v2(d)
+	if !isSuccess(r) {
+		return nil, errors.Errorf(nil, "Get MemoryInfo error")
+	}
+
+	return &device.MemInfo{
+		Total: uint32(memoryInfo.Total / 1024 / 1024),
+		Used:  uint32(memoryInfo.Used / 1024 / 1024)}, nil
 }
 
 func isSuccess(ret nvml.Return) bool {
@@ -55,8 +69,17 @@ func (n *Nvidia) IsDeviceHealthy(idx int) (bool, error) {
 	return true, nil
 }
 
-func (n *Nvidia) GetDeviceUtil(idx int) (float64, error) {
-	return 0, nil
+func (n *Nvidia) GetDeviceUtil(idx int) (int, error) {
+	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
+	if !isSuccess(r) {
+		return 0, errors.Errorf(nil, "Get DeviceHandleByIndex error")
+	}
+	util, r := n.nvmllib.DeviceGetUtilizationRates(device)
+	if !isSuccess(r) {
+		return 0, errors.Errorf(nil, "Get UtilizationRates error")
+	}
+
+	return int(util.Gpu), nil
 }
 
 func (n *Nvidia) Name() string {
@@ -65,23 +88,6 @@ func (n *Nvidia) Name() string {
 
 func (n *Nvidia) K8sResourceName() string {
 	return device.K8sResourceName(n.Name())
-}
-
-func (n *Nvidia) GetDeviceMemoryUtil(idx int) (float64, error) {
-	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
-	if !isSuccess(r) {
-		return 0, errors.Errorf(nil, "Get DeviceHandleByIndex error")
-	}
-	memoryInfo, r := n.nvmllib.DeviceGetMemoryInfo(device)
-	klog.Infof("Get MemoryInfo %v", memoryInfo)
-	if !isSuccess(r) {
-		return 0, errors.Errorf(nil, "Get MemoryInfo error")
-	}
-	if memoryInfo.Total == 0 {
-		return 0, errors.Errorf(nil, "MemoryInfo total is 0")
-	}
-
-	return float64(memoryInfo.Used) / float64(memoryInfo.Total), nil
 }
 
 func NewNvidia() (device.Device, error) {

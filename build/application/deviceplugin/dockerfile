@@ -1,4 +1,9 @@
-from swr.cn-south-1.myhuaweicloud.com/krakenplug/builder:v1.0 as builder
+from golang:1.18 as builder
+
+ENV CGO_ENABLED 1
+ENV GO111MODULE on
+ENV GOPROXY=https://goproxy.cn,direct
+
 WORKDIR /app
 COPY ./thirdparty/go-eflib/go.mod ./thirdparty/go-eflib/
 RUN cd ./thirdparty/go-eflib && go mod download

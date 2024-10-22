@@ -7,7 +7,6 @@ require (
 	github.com/prometheus/client_golang v1.15.0
 	github.com/sirupsen/logrus v1.9.0
 	github.com/urfave/cli v1.22.5
-	go-eflib v1.4.10
 	google.golang.org/grpc v1.57.2
 	huawei.com/npu-exporter/v6 v6.0.0-RC2.b002.fix
 	k8s.io/klog/v2 v2.90.1
@@ -41,6 +40,5 @@ require (
 )
 
 replace (
-	go-eflib => ./thirdparty/go-eflib
 	huawei.com/npu-exporter/v6 => gitee.com/lh120407/ascend-npu-exporter/v6 v6.0.0-RC2.b002.fix
 )

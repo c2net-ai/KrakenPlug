@@ -48,7 +48,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "deviceplugin.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "deviceplugin.name" . }}
+app.kubernetes.io/name: {{ include "deviceplugin.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 
@@ -113,7 +113,7 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 Selector labels
 */}}
 {{- define "deviceexporter.selectorLabels" -}}
-app.kubernetes.io/name: {{ include "deviceexporter.name" . }}
+app.kubernetes.io/name: {{ include "deviceexporter.fullname" . }}
 app.kubernetes.io/instance: {{ .Release.Name }}
 {{- end }}
 

@@ -1,15 +1,13 @@
 package collector
 
 import (
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"strconv"
 	"time"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
@@ -23,12 +21,13 @@ var (
 )
 
 const (
-	labelNodeName    = "node_name"
-	labelPod         = "pod"
-	labelDeviceIndex = "device_index"
-	labelVendor      = "vendor"
-	metricDeviceUtil = "krakenplug_device_util"
-	metricMemoryUtil = "krakenplug_memory_util"
+	labelNodeName           = "node_name"
+	labelPod                = "pod"
+	labelDeviceIndex        = "device_index"
+	labelVendor             = "vendor"
+	metricDeviceUtil        = "krakenplug_device_util"
+	metricDeviceMemoryUsed  = "krakenplug_device_memory_used"
+	metricDeviceMemoryTotal = "krakenplug_device_memory_total"
 )
 
 type collector struct {
@@ -57,26 +56,20 @@ func getMetric() map[string]metric {
 
 	metrics[metricDeviceUtil] = metric{desc: prometheus.NewDesc(metricDeviceUtil, "device util", utilLabels, nil),
 		labels: utilLabels}
-	metrics[metricMemoryUtil] = metric{desc: prometheus.NewDesc(metricMemoryUtil, "memory util", utilLabels, nil),
+	metrics[metricDeviceMemoryUsed] = metric{desc: prometheus.NewDesc(metricDeviceMemoryUsed, "device memory used", utilLabels, nil),
+		labels: utilLabels}
+	metrics[metricDeviceMemoryTotal] = metric{desc: prometheus.NewDesc(metricDeviceMemoryTotal, "device memory total", utilLabels, nil),
 		labels: utilLabels}
 
 	return metrics
 }
 
 func NewCollector(nodeName string) (prometheus.Collector, error) {
-	device, err := enflame.NewEnflame()
-	if err == nil {
-		goto start
+	device, err := util.NewDevice()
+	if err != nil {
+		return nil, errors.Errorf(err, "new device error")
 	}
 
-	device, err = nvidia.NewNvidia()
-	if err == nil {
-		goto start
-	}
-
-	return nil, err
-
-start:
 	klog.Infof("%s device found", device.Name())
 
 	c := &collector{
@@ -101,7 +94,7 @@ func (c *collector) Collect(ch chan<- prometheus.Metric) {
 	}
 	klog.Infof("GetDeviceToPodInfo: %v", podInfo)
 	c.collectDeviceUtil(ch, podInfo)
-	c.collectDeviceMemoryUtil(ch, podInfo)
+	c.collectDeviceMemory(ch, podInfo)
 }
 
 func (c *collector) getLabelValues(labels []string, values *labelValues) []string {
@@ -139,13 +132,13 @@ func (c *collector) collectDeviceUtil(ch chan<- prometheus.Metric, podInfo map[s
 			values.Pod = info.Pod
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceUtil].desc, prometheus.GaugeValue, util, c.getLabelValues(c.metrics[metricDeviceUtil].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceUtil].desc, prometheus.GaugeValue, float64(util), c.getLabelValues(c.metrics[metricDeviceUtil].labels, values)...)
 	}
 }
 
-func (c *collector) collectDeviceMemoryUtil(ch chan<- prometheus.Metric, podInfo map[string]podresources.PodInfo) {
+func (c *collector) collectDeviceMemory(ch chan<- prometheus.Metric, podInfo map[string]podresources.PodInfo) {
 	for i := 0; i < c.deviceCount; i++ {
-		util, err := c.device.GetDeviceMemoryUtil(i)
+		memoryInfo, err := c.device.GetDeviceMemoryInfo(i)
 		if err != nil {
 			klog.Errorf("GetDeviceUtil error: %v", err)
 			continue
@@ -160,7 +153,9 @@ func (c *collector) collectDeviceMemoryUtil(ch chan<- prometheus.Metric, podInfo
 			values.Pod = info.Pod
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryUtil].desc, prometheus.GaugeValue, util, c.getLabelValues(c.metrics[metricMemoryUtil].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceMemoryUsed].desc, prometheus.GaugeValue, float64(memoryInfo.Used), c.getLabelValues(c.metrics[metricDeviceMemoryUsed].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceMemoryTotal].desc, prometheus.GaugeValue, float64(memoryInfo.Total), c.getLabelValues(c.metrics[metricDeviceMemoryTotal].labels, values)...)
+
 	}
 }
 

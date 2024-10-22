@@ -3,7 +3,8 @@ package ascend
 import (
 	"context"
 	"fmt"
-
+	"huawei.com/npu-exporter/v6/devmanager/common"
+	"k8s.io/klog/v2"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"huawei.com/npu-exporter/v6/common-utils/hwlog"
@@ -14,15 +15,27 @@ import (
 )
 
 type Ascend struct {
-	dmgr devmanager.DeviceInterface
+	dmgr *devmanager.DeviceManager
 }
 
-func (c *Ascend) GetDeviceMemoryUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
+	hbmInfo, err := c.dmgr.GetDeviceHbmInfo(int32(idx))
+	klog.Infof("memorySize: %d, usage: %d", hbmInfo.MemorySize, hbmInfo.Usage)
+	if err != nil {
+		return nil, errors.Errorf(nil, "failed to get device %d hbm info: %v", idx, err)
+	}
+	return &device.MemInfo{
+		Total: uint32(hbmInfo.MemorySize),
+		Used:  uint32(hbmInfo.Usage),
+	}, nil
 }
 
-func (c *Ascend) GetDeviceUtil(idx int) (float64, error) {
-	return 0, errors.New("not implement")
+func (c *Ascend) GetDeviceUtil(idx int) (int, error) {
+	rate, err := c.dmgr.GetDeviceUtilizationRate(int32(idx), common.AICore)
+	if err != nil {
+		return 0, errors.Errorf(nil, "failed to get device %d utilization rate: %v", idx, err)
+	}
+	return int(rate), nil
 }
 
 func (c *Ascend) IsDeviceHealthy(idx int) (bool, error) {
@@ -51,7 +64,7 @@ func initHwLogger() error {
 
 func NewAscend() (device.Device, error) {
 	initHwLogger()
-	dmgr, err := devmanager.GetDeviceManager()
+	dmgr, err := devmanager.AutoInit("")
 	if err != nil {
 		return nil, err
 	}
