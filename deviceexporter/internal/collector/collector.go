@@ -21,13 +21,13 @@ var (
 )
 
 const (
-	labelNodeName     = "node_name"
-	labelPod          = "pod"
-	labelDeviceIndex  = "device_index"
-	labelVendor       = "vendor"
-	metricDeviceUtil  = "krakenplug_device_util"
-	metricMemoryUsed  = "krakenplug_memory_used"
-	metricMemoryTotal = "krakenplug_memory_total"
+	labelNodeName           = "node_name"
+	labelPod                = "pod"
+	labelDeviceIndex        = "device_index"
+	labelVendor             = "vendor"
+	metricDeviceUtil        = "krakenplug_device_util"
+	metricDeviceMemoryUsed  = "krakenplug_device_memory_used"
+	metricDeviceMemoryTotal = "krakenplug_device_memory_total"
 )
 
 type collector struct {
@@ -56,9 +56,9 @@ func getMetric() map[string]metric {
 
 	metrics[metricDeviceUtil] = metric{desc: prometheus.NewDesc(metricDeviceUtil, "device util", utilLabels, nil),
 		labels: utilLabels}
-	metrics[metricMemoryUsed] = metric{desc: prometheus.NewDesc(metricMemoryUsed, "memory free", utilLabels, nil),
+	metrics[metricDeviceMemoryUsed] = metric{desc: prometheus.NewDesc(metricDeviceMemoryUsed, "device memory used", utilLabels, nil),
 		labels: utilLabels}
-	metrics[metricMemoryTotal] = metric{desc: prometheus.NewDesc(metricMemoryTotal, "memory total", utilLabels, nil),
+	metrics[metricDeviceMemoryTotal] = metric{desc: prometheus.NewDesc(metricDeviceMemoryTotal, "device memory total", utilLabels, nil),
 		labels: utilLabels}
 
 	return metrics
@@ -153,8 +153,8 @@ func (c *collector) collectDeviceMemory(ch chan<- prometheus.Metric, podInfo map
 			values.Pod = info.Pod
 		}
 
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryUsed].desc, prometheus.GaugeValue, float64(memoryInfo.Used), c.getLabelValues(c.metrics[metricMemoryUsed].labels, values)...)
-		ch <- prometheus.MustNewConstMetric(c.metrics[metricMemoryTotal].desc, prometheus.GaugeValue, float64(memoryInfo.Total), c.getLabelValues(c.metrics[metricMemoryTotal].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceMemoryUsed].desc, prometheus.GaugeValue, float64(memoryInfo.Used), c.getLabelValues(c.metrics[metricDeviceMemoryUsed].labels, values)...)
+		ch <- prometheus.MustNewConstMetric(c.metrics[metricDeviceMemoryTotal].desc, prometheus.GaugeValue, float64(memoryInfo.Total), c.getLabelValues(c.metrics[metricDeviceMemoryTotal].labels, values)...)
 
 	}
 }

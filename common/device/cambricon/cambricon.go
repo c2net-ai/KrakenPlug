@@ -9,8 +9,6 @@ import (
 	"path/filepath"
 	"unsafe"
 
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
-
 	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
@@ -21,11 +19,30 @@ type Cambricon struct {
 }
 
 func (c *Cambricon) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
-	return nil, errors.New("not implement")
+	memoryInfo := &lib.MemoryInfo_t{Version: version}
+	ret := lib.GetMemoryUsage(memoryInfo, int32(idx))
+	err := errorString(ret)
+	if err != nil {
+		return nil, err
+	}
+
+	return &device.MemInfo{
+		Total: uint32(memoryInfo.PhysicalMemoryTotal),
+		Used:  uint32(memoryInfo.PhysicalMemoryUsed),
+	}, err
 }
 
 func (c *Cambricon) GetDeviceUtil(idx int) (int, error) {
-	return 0, errors.New("not implement")
+	utilizationInfo := &lib.UtilizationInfo_t{
+		Version: version,
+	}
+	ret := lib.GetDeviceUtilizationInfo(utilizationInfo, int32(idx))
+	err := errorString(ret)
+	if err != nil {
+		return 0, err
+	}
+
+	return int(utilizationInfo.AverageCoreUtilization), err
 }
 
 func (c *Cambricon) IsDeviceHealthy(idx int) (bool, error) {
@@ -124,7 +141,6 @@ func (c *Cambricon) GetDeviceCount() (int, error) {
 		Version: version,
 	}
 	r := lib.GetDeviceCount(cardInfos)
-	fmt.Println("@@@:", cardInfos.Number)
 	return int(cardInfos.Number), errorString(r)
 }
 
