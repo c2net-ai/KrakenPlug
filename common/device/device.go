@@ -19,7 +19,7 @@ type MemInfo struct {
 }
 
 type Device interface {
-	Release() error
+	Shutdown() error
 	GetDeviceCount() (int, error)
 	GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerAllocateResponse, error)
 	IsDeviceHealthy(idx int) (bool, error)
@@ -27,6 +27,7 @@ type Device interface {
 	Name() string
 	K8sResourceName() string
 	GetDeviceMemoryInfo(idx int) (*MemInfo, error)
+	GetDeviceModel(idx int) (string, error)
 }
 
 func K8sResourceName(name string) string {

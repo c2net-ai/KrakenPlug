@@ -165,7 +165,7 @@ func (m *Server) Stop() error {
 	m.server = nil
 	close(m.stop)
 
-	m.device.Release()
+	m.device.Shutdown()
 	return m.cleanup()
 }
 

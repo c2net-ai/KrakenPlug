@@ -12,6 +12,10 @@ import (
 type Enflame struct {
 }
 
+func (c *Enflame) GetDeviceModel(idx int) (string, error) {
+	return "", nil
+}
+
 func (c *Enflame) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	handle := lib.Handle{
 		Dev_Idx: uint(idx),
@@ -71,7 +75,7 @@ const (
 	smiPath          = "/usr/sbin/efsmi"
 )
 
-func (c *Enflame) Release() error {
+func (c *Enflame) Shutdown() error {
 	lib.Shutdown()
 	return nil
 }
