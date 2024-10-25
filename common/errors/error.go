@@ -194,3 +194,11 @@ func GetInnerMost(err error) error {
 	}
 	return err
 }
+
+func Message(err error) string {
+	if err2, ok := err.(*Err); ok {
+		return err2.message
+	}
+
+	return err.Error()
+}
