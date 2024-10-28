@@ -9,7 +9,8 @@ import (
 )
 
 const (
-	CLINodeName = "node-name"
+	ParamNodeName      = "node-name"
+	ParamSleepInterval = "sleep-interval"
 )
 
 func NewApp(buildVersion ...string) *cli.App {
@@ -23,11 +24,16 @@ func NewApp(buildVersion ...string) *cli.App {
 
 	c.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:   CLINodeName,
+			Name:   ParamNodeName,
 			Value:  "",
 			Usage:  "Node name",
 			EnvVar: "KRAKENPLUG_NODE_NAME",
 		},
+		&cli.DurationFlag{
+			Name:   ParamSleepInterval,
+			Value:  300 * time.Second,
+			Usage:  "Time to sleep between labeling",
+			EnvVar: "KRAKENPLUG_SLEEP_INTERVAL"},
 	}
 
 	c.Action = func(c *cli.Context) error {
@@ -44,7 +50,7 @@ func action(c *cli.Context) (err error) {
 	if err != nil {
 		klog.Infof("Failed to label node %s: %v", config.NodeName, errors.Message(err))
 	}
-	ticker := time.NewTicker(300 * time.Second)
+	ticker := time.NewTicker(config.SleepInterval)
 	defer ticker.Stop()
 	for range ticker.C {
 		err = label(config.NodeName)
@@ -67,6 +73,7 @@ func label(nodeName string) error {
 
 func contextToConfig(c *cli.Context) (*Config, error) {
 	return &Config{
-		NodeName: c.String(CLINodeName),
+		NodeName:      c.String(ParamNodeName),
+		SleepInterval: c.Duration(ParamSleepInterval),
 	}, nil
 }

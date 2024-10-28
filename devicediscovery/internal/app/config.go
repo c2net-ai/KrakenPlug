@@ -1,5 +1,8 @@
 package app
 
+import "time"
+
 type Config struct {
-	NodeName string
+	NodeName      string
+	SleepInterval time.Duration
 }
