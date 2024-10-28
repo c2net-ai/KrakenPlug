@@ -63,7 +63,11 @@ func action(c *cli.Context) (err error) {
 
 func label(nodeName string) error {
 	labeler, err := labeler.NewLabeler(nodeName)
-	defer labeler.Shutdown()
+	defer func() {
+		if labeler != nil {
+			labeler.Shutdown()
+		}
+	}()
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,7 @@ import (
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"strconv"
 )
 
@@ -56,7 +57,7 @@ func (l *Labeler) Label() error {
 	if err != nil {
 		klog.Infof("failed to get device model")
 	}
-	node.ObjectMeta.Labels[LabelKeyModel] = model
+	node.ObjectMeta.Labels[LabelKeyModel] = utils.ReplaceAllBlank(model)
 
 	_, err = l.client.CoreV1().Nodes().Update(ctx, node, v1.UpdateOptions{})
 
@@ -64,5 +65,7 @@ func (l *Labeler) Label() error {
 }
 
 func (l *Labeler) Shutdown() {
-	l.device.Shutdown()
+	if l.device != nil {
+		l.device.Shutdown()
+	}
 }
