@@ -13,13 +13,13 @@ volumes:
     host:
       path: /var/run/
 steps:
-  - name: 构建镜像
-    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
-    volumes:
-      - name: docker
-        path: /var/run/
-    commands:
-      - make deviceplugin_image tag=${DRONE_TAG}
+#  - name: 构建镜像
+#    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+#    volumes:
+#      - name: docker
+#        path: /var/run/
+#    commands:
+#      - make deviceplugin_image tag=${DRONE_TAG}
 
   - name: 镜像推送
     image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
@@ -53,13 +53,13 @@ volumes:
     host:
       path: /var/run/
 steps:
-  - name: 构建镜像
-    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
-    volumes:
-      - name: docker
-        path: /var/run/
-    commands:
-      - make deviceexporter_image tag=${DRONE_TAG}
+#  - name: 构建镜像
+#    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+#    volumes:
+#      - name: docker
+#        path: /var/run/
+#    commands:
+#      - make deviceexporter_image tag=${DRONE_TAG}
 
   - name: 镜像推送
     image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
