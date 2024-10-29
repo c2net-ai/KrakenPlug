@@ -14,7 +14,7 @@ volumes:
       path: /var/run/
 steps:
 #  - name: 构建镜像
-#    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+#    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
 #    volumes:
 #      - name: docker
 #        path: /var/run/
@@ -22,7 +22,7 @@ steps:
 #      - make deviceplugin_image tag=${DRONE_TAG}
 
   - name: 镜像推送
-    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
     volumes:
       - name: docker
         path: /var/run/
@@ -54,7 +54,7 @@ volumes:
       path: /var/run/
 steps:
 #  - name: 构建镜像
-#    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+#    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
 #    volumes:
 #      - name: docker
 #        path: /var/run/
@@ -62,7 +62,7 @@ steps:
 #      - make deviceexporter_image tag=${DRONE_TAG}
 
   - name: 镜像推送
-    image: swr.cn-south-1.myhuaweicloud.com/openioctopus/docker:20.10.6-make
+    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
     volumes:
       - name: docker
         path: /var/run/
@@ -75,8 +75,6 @@ steps:
         from_secret: docker_hub_passwd
       DOCKER_HUB_PROJECT:
         from_secret: docker_hub_project
-      DOCKER_CLI_EXPERIMENTAL:
-        value: "enabled"
     commands:
       - make deviceexporter_image_push need_latest=FALSE tag=${DRONE_TAG} docker_hub_project=$DOCKER_HUB_PROJECT docker_hub_host=$DOCKER_HUB_HOST docker_hub_userame=$DOCKER_HUB_USERNAME docker_hub_passwd=$DOCKER_HUB_PASSWD
 
@@ -109,7 +107,5 @@ steps:
         from_secret: charts_git_user_name
       CHARTS_GIT_USER_EMAIL:
         from_secret: charts_git_user_email
-      DOCKER_CLI_EXPERIMENTAL:
-        value: "enabled"
     commands:
       - make charts drone_repo=${DRONE_REPO} tag=${DRONE_TAG} charts_git_clone=$CHARTS_GIT_CLONE charts_git_raw=$CHARTS_GIT_RAW charts_git_user_name=$CHARTS_GIT_USER_NAME charts_git_user_email=$CHARTS_GIT_USER_EMAIL
