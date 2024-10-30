@@ -19,7 +19,16 @@ type Ascend struct {
 }
 
 func (c *Ascend) GetDeviceModel(idx int) (string, error) {
-	return "", nil
+	cardId, deviceId, err := c.dmgr.GetCardIDDeviceID(int32(idx))
+	if err != nil {
+		return "", errors.Errorf(nil, "failed to get card id and device id: %v", err)
+	}
+	productType, err := c.dmgr.GetProductType(cardId, deviceId)
+	if err != nil {
+		return "", errors.Errorf(nil, "failed to get product type: %v", err)
+	}
+
+	return productType, nil
 }
 
 func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {

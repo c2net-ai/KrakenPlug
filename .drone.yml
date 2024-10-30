@@ -79,6 +79,47 @@ steps:
       - make deviceexporter_image_push need_latest=FALSE tag=${DRONE_TAG} docker_hub_project=$DOCKER_HUB_PROJECT docker_hub_host=$DOCKER_HUB_HOST docker_hub_userame=$DOCKER_HUB_USERNAME docker_hub_passwd=$DOCKER_HUB_PASSWD
 
 ---
+
+kind: pipeline
+name: devicediscovery
+type: kubernetes
+platform:
+  os: linux
+  arch: amd64
+trigger:
+  event:
+    - tag
+volumes:
+  - name: docker
+    host:
+      path: /var/run/
+steps:
+  #  - name: 构建镜像
+  #    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
+  #    volumes:
+  #      - name: docker
+  #        path: /var/run/
+  #    commands:
+  #      - make devicediscovery_image tag=${DRONE_TAG}
+
+  - name: 镜像推送
+    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/docker:20.10.6-make
+    volumes:
+      - name: docker
+        path: /var/run/
+    environment:
+      DOCKER_HUB_HOST:
+        from_secret: docker_hub_host
+      DOCKER_HUB_USERNAME:
+        from_secret: docker_hub_userame
+      DOCKER_HUB_PASSWD:
+        from_secret: docker_hub_passwd
+      DOCKER_HUB_PROJECT:
+        from_secret: docker_hub_project
+    commands:
+      - make devicediscovery_image_push need_latest=FALSE tag=${DRONE_TAG} docker_hub_project=$DOCKER_HUB_PROJECT docker_hub_host=$DOCKER_HUB_HOST docker_hub_userame=$DOCKER_HUB_USERNAME docker_hub_passwd=$DOCKER_HUB_PASSWD
+
+---
 kind: pipeline
 name: charts
 type: kubernetes
