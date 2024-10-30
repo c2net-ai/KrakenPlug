@@ -49,13 +49,13 @@ func (l *Labeler) Label() error {
 
 	memoryInfo, err := l.device.GetDeviceMemoryInfo(0)
 	if err != nil {
-		klog.Infof("failed to get device memory info")
+		klog.Errorf("failed to get device memory info: %v", err)
 	}
 	node.ObjectMeta.Labels[LabelKeyMemory] = strconv.Itoa(int(memoryInfo.Total))
 
 	model, err := l.device.GetDeviceModel(0)
 	if err != nil {
-		klog.Infof("failed to get device model")
+		klog.Errorf("failed to get device model: %v", err)
 	}
 	node.ObjectMeta.Labels[LabelKeyModel] = utils.ReplaceAllBlank(model)
 

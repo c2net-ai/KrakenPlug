@@ -15,3 +15,7 @@ deviceplugin:
 deviceexporter:
   image:
     name: "deviceexporter"
+
+devicediscovery:
+  image:
+    name: "devicediscovery"

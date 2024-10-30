@@ -40,6 +40,7 @@ tar -zxvf krakenplug-vx.x.x.tgz
 进入到解压后的krakenplug目录，执行helm install进行安装：
 
 ```
+kubectl create ns krakenplug
 helm install krakenplug -n krakenplug ./  --values values.yaml
 ```
 

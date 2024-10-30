@@ -33,6 +33,7 @@ spec:
       labels:
         {{- include "devicediscovery.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ include "devicediscovery.fullname" . }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

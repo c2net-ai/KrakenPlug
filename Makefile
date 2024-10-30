@@ -56,7 +56,7 @@ deviceexporter_image:
 	docker build -t deviceexporter:${RELEASE_VER} -f ./build/application/deviceexporter/dockerfile .
 
 devicediscovery_image:
-	docker build -t discovery:${RELEASE_VER} -f ./build/application/discovery/dockerfile .
+	docker build -t devicediscovery:${RELEASE_VER} -f ./build/application/devicediscovery/dockerfile .
 
 # 镜像推送
 images_push: deviceplugin_image_push deviceexporter_image_push
