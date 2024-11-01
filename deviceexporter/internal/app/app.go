@@ -2,7 +2,9 @@ package app
 
 import (
 	"net/http"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/signal"
 	"os"
+	"syscall"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
@@ -82,11 +84,19 @@ func action(c *cli.Context) (err error) {
 	}
 
 	klog.Infof("start serving at %s", server.Addr)
-	err = server.ListenAndServe()
-	if err != nil {
-		return err
-	}
+	go server.ListenAndServe()
 
+	sigs := signal.Signals(syscall.SIGHUP, syscall.SIGINT, syscall.SIGTERM, syscall.SIGQUIT)
+	for {
+		select {
+		case s := <-sigs:
+			switch s {
+			default:
+				collector.Shutdown()
+				klog.Infof("shutdown")
+			}
+		}
+	}
 	return nil
 }
 

@@ -64,7 +64,7 @@ func getMetric() map[string]metric {
 	return metrics
 }
 
-func NewCollector(nodeName string) (prometheus.Collector, error) {
+func NewCollector(nodeName string) (*collector, error) {
 	device, err := util.NewDevice()
 	if err != nil {
 		return nil, errors.Errorf(err, "new device error")
@@ -85,6 +85,10 @@ func NewCollector(nodeName string) (prometheus.Collector, error) {
 	}
 	c.deviceCount = count
 	return c, nil
+}
+
+func (c *collector) Shutdown() error {
+	return c.device.Shutdown()
 }
 
 func (c *collector) Collect(ch chan<- prometheus.Metric) {

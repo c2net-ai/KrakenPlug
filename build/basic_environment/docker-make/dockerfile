@@ -1,0 +1,17 @@
+FROM docker:20.10.6
+
+RUN sed -i 's/dl-cdn.alpinelinux.org/mirrors.aliyun.com/g' /etc/apk/repositories && apk update
+RUN apk add --no-cache make
+COPY --from=docker/buildx-bin /buildx /usr/libexec/docker/cli-plugins/docker-buildx
+RUN docker buildx version
+ENV DOCKER_CLI_EXPERIMENTAL enabled
+RUN echo -e 'debug = true\n\
+[registry."docker.io"]\n\
+  mirrors = [ "https://docker.m.daocloud.io","https://docker.udayun.com", "https://noohub.ru", "https://huecker.io","https://dockerhub.timeweb.cloud"]'\
+> /etc/buildkitd.toml
+# 以下需要在容器中执行后保存为镜像
+# docker buildx create --use \
+#   --name mybuilder \
+#   --driver docker-container \
+#   --config /etc/buildkitd.toml
+# docker buildx inspect --bootstrap

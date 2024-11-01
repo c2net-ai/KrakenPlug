@@ -5,7 +5,9 @@ package cambricon
 import "C"
 import (
 	"fmt"
+	"golang.org/x/sys/unix"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon/lib"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"path/filepath"
 	"unsafe"
 
@@ -16,6 +18,15 @@ import (
 
 type Cambricon struct {
 	handles []unsafe.Pointer
+}
+
+func (c *Cambricon) GetDeviceModel(idx int) (string, error) {
+	ret := lib.GetCardNameStringByDevId(int32(idx))
+	if ret == nil {
+		return "", errors.Errorf(nil, "get card name failed")
+	}
+
+	return unix.BytePtrToString(ret), nil
 }
 
 func (c *Cambricon) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
@@ -121,7 +132,7 @@ func errorString(cRet lib.Ret_t) error {
 	return fmt.Errorf("cndev: %v", err)
 }
 
-func (c *Cambricon) Release() error {
+func (c *Cambricon) Shutdown() error {
 	ret := lib.Release()
 	if ret != lib.SUCCESS {
 		return errorString(ret)

@@ -40,6 +40,7 @@ tar -zxvf krakenplug-vx.x.x.tgz
 进入到解压后的krakenplug目录，执行helm install进行安装：
 
 ```
+kubectl create ns krakenplug
 helm install krakenplug -n krakenplug ./  --values values.yaml
 ```
 
@@ -81,3 +82,14 @@ helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 | device_index | 设备索引                                    |
 | vendor       | 设备厂商，当前支持nvidia、ascend、cambricon |
 
+
+
+## 异构设备Discovery
+
+异构设备Discovery将AI设备型号等信息通过label的方式添加到Kubernets Node中，以供业务层实现精细化管理。
+
+| **label名称**                      | **label说明**      | **字段类型** |
+| ---------------------------------- | ------------------ | ------------ |
+| krakenplug.pcl.ac.cn/device.vendor | 设备厂商           | string       |
+| krakenplug.pcl.ac.cn/device.model  | 设备型号           | string       |
+| krakenplug.pcl.ac.cn/device.memory | 设备显存总量（MB） | integer      |

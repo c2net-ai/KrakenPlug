@@ -18,6 +18,15 @@ type Ascend struct {
 	dmgr *devmanager.DeviceManager
 }
 
+func (c *Ascend) GetDeviceModel(idx int) (string, error) {
+	chipInfo, err := c.dmgr.GetChipInfo(int32(idx))
+	if err != nil {
+		return "", errors.Errorf(err, "failed to get product type")
+	}
+
+	return chipInfo.Name, nil
+}
+
 func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	hbmInfo, err := c.dmgr.GetDeviceHbmInfo(int32(idx))
 	klog.Infof("memorySize: %d, usage: %d", hbmInfo.MemorySize, hbmInfo.Usage)
@@ -77,7 +86,7 @@ func NewAscend() (device.Device, error) {
 	return c, nil
 }
 
-func (c *Ascend) Release() error {
+func (c *Ascend) Shutdown() error {
 	err := c.dmgr.ShutDown()
 	if err != nil {
 		return err

@@ -1,6 +1,9 @@
 package utils
 
-import "strconv"
+import (
+	"regexp"
+	"strconv"
+)
 
 func JoinSliceInt(idxs []int) string {
 	idxsStr := ""
@@ -12,4 +15,12 @@ func JoinSliceInt(idxs []int) string {
 	}
 
 	return idxsStr
+}
+
+func ReplaceAllBlank(input string) string {
+	re := regexp.MustCompile(`\s+`)
+
+	result := re.ReplaceAllString(input, "-")
+
+	return result
 }

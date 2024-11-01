@@ -16,6 +16,19 @@ type Nvidia struct {
 	nvmllib nvml.Interface
 }
 
+func (n *Nvidia) GetDeviceModel(idx int) (string, error) {
+	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
+	if !isSuccess(r) {
+		return "", errors.Errorf(nil, "Get DeviceHandleByIndex error")
+	}
+	name, r := n.nvmllib.DeviceGetName(device)
+	if !isSuccess(r) {
+		return "", errors.Errorf(nil, "Get Name error")
+	}
+
+	return name, nil
+}
+
 func (n *Nvidia) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	d, r := n.nvmllib.DeviceGetHandleByIndex(idx)
 	if !isSuccess(r) {
@@ -35,7 +48,7 @@ func isSuccess(ret nvml.Return) bool {
 	return ret == nvml.SUCCESS
 }
 
-func (n *Nvidia) Release() error {
+func (n *Nvidia) Shutdown() error {
 	ret := n.nvmllib.Shutdown()
 	if !isSuccess(ret) {
 		klog.Infof("Error shutting down NVML: %v", ret)

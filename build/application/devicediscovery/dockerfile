@@ -9,13 +9,13 @@ COPY ./go.mod ./go.sum ./
 RUN cd ./ && go mod download
 COPY ./ ./
 
-RUN make deviceexporter_build binary_dir="/app/bin"
+RUN make devicediscovery_build binary_dir="/app/bin"
 
 FROM ubuntu:20.04
 WORKDIR /app
-COPY --from=builder /app/bin/deviceexporter /app/deviceexporter
+COPY --from=builder /app/bin/devicediscovery /app/devicediscovery
 COPY --from=builder /app/build/script/copy_lib.sh /app/copy_lib.sh
-COPY --from=builder /app/build/application/deviceexporter/start.sh /app/start.sh
-RUN chmod +x /app/deviceexporter /app/copy_lib.sh /app/start.sh
+COPY --from=builder /app/build/application/devicediscovery/start.sh /app/start.sh
+RUN chmod +x /app/devicediscovery /app/copy_lib.sh /app/start.sh
 
 ENTRYPOINT ["/app/start.sh"]
