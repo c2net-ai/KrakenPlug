@@ -4,22 +4,20 @@ import (
 	"os"
 )
 
-func MaskPrint() (error, *os.File, *os.File, func()) {
-	stdout := os.Stdout
-	stderr := os.Stderr
+var (
+	Stdout = os.Stdout
+	Stderr = os.Stderr
+)
+
+func MaskPrint() (error, func()) {
 	nullFile, err := os.OpenFile(os.DevNull, os.O_WRONLY, 0666)
 	if err != nil {
-		return err, nil, nil, nil
+		return err, nil
 	}
 	os.Stdout = nullFile
 	os.Stderr = nullFile
 
-	return nil, stdout, stderr, func() {
+	return nil, func() {
 		nullFile.Close()
 	}
-}
-
-func UnmaskPrint(stdout *os.File, stderr *os.File) {
-	os.Stdout = stdout
-	os.Stderr = stderr
 }

@@ -29,17 +29,17 @@ func NewApp(buildVersion ...string) *cli.App {
 }
 
 func action(c *cli.Context) (err error) {
-	printInfo()
-	return nil
-}
-
-func printInfo() {
-	err, stdout, stderr, close := utils.MaskPrint()
+	err, close := utils.MaskPrint()
 	if err != nil {
 		return
 	}
 	defer close()
 
+	printInfo()
+	return nil
+}
+
+func printInfo() {
 	t := table.NewWriter()
 	style := table.StyleDefault
 	style.Format.Header = text.FormatDefault
@@ -70,13 +70,11 @@ func printInfo() {
 		if err != nil {
 			continue
 		}
-
 		t.AppendRows([]table.Row{
 			{i, strings.ToUpper(d.Name()), model, fmt.Sprintf("%v / %v", memInfo.Used, memInfo.Total), util},
 		})
 	}
 
 exit:
-	utils.UnmaskPrint(stdout, stderr)
-	fmt.Println(t.Render())
+	fmt.Fprintln(utils.Stdout, t.Render())
 }
