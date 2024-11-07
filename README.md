@@ -93,3 +93,7 @@ helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 | krakenplug.pcl.ac.cn/device.vendor | 设备厂商           | string       |
 | krakenplug.pcl.ac.cn/device.model  | 设备型号           | string       |
 | krakenplug.pcl.ac.cn/device.memory | 设备显存总量（MB） | integer      |
+
+## KPSMI
+KPSMI是查询异构设备信息的客户端工具，可以通过KPSMI查询异构设备信息，包括设备厂商、设备型号、设备内存等。
+<img src="./docs/imgs/kpsmi.png"  width=600px />
