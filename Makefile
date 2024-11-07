@@ -46,6 +46,9 @@ deviceexporter_build: init
 devicediscovery_build: init
 	cd ./devicediscovery && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
 
+kpsmi_build: init
+	cd ./kpsmi && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
+
 # 构建镜像
 images: deviceplugin_image deviceexporter_image devicediscovery_image
 
