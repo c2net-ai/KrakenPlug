@@ -5,18 +5,49 @@ import (
 	cdispecs "github.com/container-orchestrated-devices/container-device-interface/specs-go"
 	"github.com/opencontainers/runtime-spec/specs-go"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
+	"strconv"
+	"strings"
 )
 
 type ModifySpec struct {
 	device device.Device
 }
 
+const (
+	KRAKENPLUG_VISIBLE_DEVICES = "KRAKENPLUG_VISIBLE_DEVICES"
+)
+
 func NewModifySpec(device device.Device) *ModifySpec {
 	return &ModifySpec{device: device}
 }
 
 func (m *ModifySpec) Modify(spec *specs.Spec) error {
-	response, err := m.device.GetContainerAllocateResponse([]int{0})
+	envs := spec.Process.Env
+	envDevices := ""
+	for _, env := range envs {
+		if strings.Contains(env, KRAKENPLUG_VISIBLE_DEVICES) {
+			envDevices = env
+			break
+		}
+	}
+
+	devices := strings.Replace(envDevices, KRAKENPLUG_VISIBLE_DEVICES+"=", "", -1)
+
+	var idxs []int
+	split := strings.Split(devices, ",")
+	for _, d := range split {
+		i, err := strconv.Atoi(d)
+		if err != nil {
+			return nil
+		}
+		idxs = append(idxs, i)
+	}
+
+	if len(idxs) == 0 {
+		return nil
+	}
+
+	response, err := m.device.GetContainerAllocateResponse(idxs)
 	if err != nil {
 		return nil
 	}
@@ -32,8 +63,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 					{
 						ContainerPath: r.ContainerPath,
 						HostPath:      r.HostPath,
-						Type:          "bind",
-						Options:       []string{"rbind", "rprivate"},
+						Options:       []string{"ro", "nosuid", "nodev", "bind"},
 					},
 				},
 			},

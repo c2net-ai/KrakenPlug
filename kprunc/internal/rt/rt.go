@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/kprunc/internal/oci"
+	"os"
 )
 
 type Runtime struct {
@@ -14,28 +15,15 @@ func NewRuntime() *Runtime {
 	return &Runtime{}
 }
 
-//func (rt *Runtime) Run(args []string) error {
-//	runcPath, err := exec.LookPath("runc")
-//	if err != nil {
-//		return fmt.Errorf("could not find runc: %v", err)
-//	}
-//
-//	runtimeArgs := []string{runcPath}
-//	if len(args) > 1 {
-//		runtimeArgs = append(runtimeArgs, args[1:]...)
-//	}
-//
-//	oci.HasCreateSubcommand(args)
-//
-//	err = syscall.Exec(runtimeArgs[0], runtimeArgs, os.Environ())
-//	if err != nil {
-//		return fmt.Errorf("could not exec '%v': %v", args[0], err)
-//	}
-//	return nil
-//}
-
 func (rt *Runtime) Run(args []string) error {
 	logger := logrus.New()
+	file, err := os.OpenFile("/var/log/kprunc.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if err == nil {
+		defer file.Close()
+		logger.SetOutput(file)
+	}
+
+	logrus.Println()
 	lowLevelRuntime, err := oci.NewLowLevelRuntime(logger, []string{"runc"})
 	if err != nil {
 		return fmt.Errorf("could not create low level runtime: %v", err)
