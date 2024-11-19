@@ -14,7 +14,7 @@ type ModifySpec struct {
 }
 
 const (
-	KRAKENPLUG_VISIBLE_DEVICES = "KRAKENPLUG_VISIBLE_DEVICES"
+	EnvVisibleDevices = "KRAKENPLUG_VISIBLE_DEVICES"
 )
 
 func NewModifySpec(device device.Device) *ModifySpec {
@@ -25,13 +25,13 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	envs := spec.Process.Env
 	envDevices := ""
 	for _, env := range envs {
-		if strings.Contains(env, KRAKENPLUG_VISIBLE_DEVICES) {
+		if strings.Contains(env, EnvVisibleDevices) {
 			envDevices = env
 			break
 		}
 	}
 
-	devices := strings.Replace(envDevices, KRAKENPLUG_VISIBLE_DEVICES+"=", "", -1)
+	devices := strings.Replace(envDevices, EnvVisibleDevices+"=", "", -1)
 
 	var idxs []int
 	split := strings.Split(devices, ",")
