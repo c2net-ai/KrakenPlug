@@ -5,6 +5,7 @@ import (
 	cdispecs "github.com/container-orchestrated-devices/container-device-interface/specs-go"
 	"github.com/opencontainers/runtime-spec/specs-go"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"strconv"
 	"strings"
 )
@@ -47,10 +48,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		return nil
 	}
 
-	response, err := m.device.GetContainerAllocateResponse(idxs)
-	if err != nil {
-		return nil
-	}
+	response := m.device.GetContainerVolume(idxs)
 
 	c := cdi.ContainerEdits{
 		ContainerEdits: &cdispecs.ContainerEdits{},
@@ -81,6 +79,23 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 				},
 			},
 		})
+	}
+
+	for _, b := range response.Binaries {
+		exist, path := util.FindExecutableFile(b)
+		if exist {
+			c.Append(&cdi.ContainerEdits{
+				ContainerEdits: &cdispecs.ContainerEdits{
+					Mounts: []*cdispecs.Mount{
+						{
+							ContainerPath: path,
+							HostPath:      path,
+							Options:       []string{"ro", "nosuid", "nodev", "bind"},
+						},
+					},
+				},
+			})
+		}
 	}
 
 	c.Apply(spec)

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/sys/unix"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon/lib"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"path/filepath"
 	"unsafe"
 
@@ -18,6 +19,26 @@ import (
 
 type Cambricon struct {
 	handles []unsafe.Pointer
+}
+
+func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
+	v := &device.ContainerVolume{}
+
+	for i, id := range idxs {
+		v.Devices = append(v.Devices, &device.DeviceSpec{
+			HostPath:      fmt.Sprintf("%s%d", mluDeviceNamePrefix, id),
+			ContainerPath: fmt.Sprintf("%s%d", mluDeviceNamePrefix, i),
+		})
+	}
+
+	v.Devices = append(v.Devices, &device.DeviceSpec{
+		HostPath:      mluMonitorDeviceName,
+		ContainerPath: mluMonitorDeviceName,
+	})
+
+	v.Binaries = []string{"cnmon"}
+
+	return v
 }
 
 func (c *Cambricon) GetDeviceModel(idx int) (string, error) {
@@ -75,27 +96,12 @@ func (c *Cambricon) IsDeviceHealthy(idx int) (bool, error) {
 
 func (c *Cambricon) GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerAllocateResponse, error) {
 	r := &pluginapi.ContainerAllocateResponse{}
-	if hostDeviceExistsWithPrefix(mluMonitorDeviceName) {
-		r.Devices = append(r.Devices, &pluginapi.DeviceSpec{
-			HostPath:      mluMonitorDeviceName,
-			ContainerPath: mluMonitorDeviceName,
-			Permissions:   "rw",
-		})
-	}
 
-	for i, id := range idxs {
-		r.Devices = append(r.Devices, &pluginapi.DeviceSpec{
-			HostPath:      fmt.Sprintf("%s%d", mluDeviceNamePrefix, id),
-			ContainerPath: fmt.Sprintf("%s%d", mluDeviceNamePrefix, i),
-			Permissions:   "rw",
-		})
-	}
+	idxsStr := utils.JoinSliceInt(idxs)
 
-	r.Mounts = append(r.Mounts, &pluginapi.Mount{
-		ContainerPath: cnmonPath,
-		HostPath:      cnmonPath,
-		ReadOnly:      true,
-	})
+	r.Envs = make(map[string]string)
+	r.Envs["ASCEND_VISIBLE_DEVICES"] = idxsStr
+	r.Envs["KRAKENPLUG_VISIBLE_DEVICES"] = idxsStr
 
 	return r, nil
 }

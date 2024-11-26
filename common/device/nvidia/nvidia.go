@@ -16,6 +16,10 @@ type Nvidia struct {
 	nvmllib nvml.Interface
 }
 
+func (n *Nvidia) GetContainerVolume(idxs []int) *device.ContainerVolume {
+	return &device.ContainerVolume{}
+}
+
 func (n *Nvidia) GetDeviceModel(idx int) (string, error) {
 	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
 	if !isSuccess(r) {

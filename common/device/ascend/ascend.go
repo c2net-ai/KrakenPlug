@@ -18,6 +18,10 @@ type Ascend struct {
 	dmgr *devmanager.DeviceManager
 }
 
+func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
+	return &device.ContainerVolume{}
+}
+
 func (c *Ascend) GetDeviceModel(idx int) (string, error) {
 	chipInfo, err := c.dmgr.GetChipInfo(int32(idx))
 	if err != nil {
@@ -58,6 +62,7 @@ func (c *Ascend) GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerA
 
 	r.Envs = make(map[string]string)
 	r.Envs["ASCEND_VISIBLE_DEVICES"] = idxsStr
+	r.Envs["KRAKENPLUG_VISIBLE_DEVICES"] = idxsStr
 
 	return r, nil
 }

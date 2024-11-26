@@ -23,7 +23,6 @@ func (rt *Runtime) Run(args []string) error {
 		logger.SetOutput(file)
 	}
 
-	logrus.Println()
 	lowLevelRuntime, err := oci.NewLowLevelRuntime(logger, []string{"runc"})
 	if err != nil {
 		return fmt.Errorf("could not create low level runtime: %v", err)
