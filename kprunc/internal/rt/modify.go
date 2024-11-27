@@ -1,9 +1,12 @@
 package rt
 
 import (
+	"fmt"
 	"github.com/container-orchestrated-devices/container-device-interface/pkg/cdi"
 	cdispecs "github.com/container-orchestrated-devices/container-device-interface/specs-go"
 	"github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/sirupsen/logrus"
+	"huawei.com/npu-exporter/v6/common-utils/utils"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"strconv"
@@ -12,14 +15,22 @@ import (
 
 type ModifySpec struct {
 	device device.Device
+	logger *logrus.Logger
 }
 
 const (
 	EnvVisibleDevices = "KRAKENPLUG_VISIBLE_DEVICES"
 )
 
-func NewModifySpec(device device.Device) *ModifySpec {
-	return &ModifySpec{device: device}
+var (
+	mountOptions = []string{"ro", "nosuid", "nodev", "bind"}
+)
+
+func NewModifySpec(logger *logrus.Logger, device device.Device) *ModifySpec {
+	return &ModifySpec{
+		logger: logger,
+		device: device,
+	}
 }
 
 func (m *ModifySpec) Modify(spec *specs.Spec) error {
@@ -35,13 +46,25 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	devices := strings.Replace(envDevices, EnvVisibleDevices+"=", "", -1)
 
 	var idxs []int
-	split := strings.Split(devices, ",")
-	for _, d := range split {
-		i, err := strconv.Atoi(d)
+	if devices == "all" {
+		cnt, err := m.device.GetDeviceCount()
 		if err != nil {
+			m.logger.Errorf("GetDeviceCount failed: %v", err)
 			return nil
 		}
-		idxs = append(idxs, i)
+		for i := 0; i < cnt; i++ {
+			idxs = append(idxs, i)
+		}
+	} else {
+		split := strings.Split(devices, ",")
+		for _, d := range split {
+			i, err := strconv.Atoi(d)
+			if err != nil {
+				m.logger.Errorf("Invalid device index: %v", d)
+				return nil
+			}
+			idxs = append(idxs, i)
+		}
 	}
 
 	if len(idxs) == 0 {
@@ -61,7 +84,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 					{
 						ContainerPath: r.ContainerPath,
 						HostPath:      r.HostPath,
-						Options:       []string{"ro", "nosuid", "nodev", "bind"},
+						Options:       mountOptions,
 					},
 				},
 			},
@@ -88,14 +111,33 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 				ContainerEdits: &cdispecs.ContainerEdits{
 					Mounts: []*cdispecs.Mount{
 						{
-							ContainerPath: path,
+							ContainerPath: fmt.Sprintf("/usr/local/bin/%v", b),
 							HostPath:      path,
-							Options:       []string{"ro", "nosuid", "nodev", "bind"},
+							Options:       mountOptions,
 						},
 					},
 				},
 			})
 		}
+	}
+
+	for _, l := range response.Libraries {
+		libPath, err := utils.GetDriverLibPath(l)
+		if err != nil {
+			continue
+		}
+
+		c.Append(&cdi.ContainerEdits{
+			ContainerEdits: &cdispecs.ContainerEdits{
+				Mounts: []*cdispecs.Mount{
+					{
+						ContainerPath: fmt.Sprintf("/usr/lib/%v", l),
+						HostPath:      libPath,
+						Options:       mountOptions,
+					},
+				},
+			},
+		})
 	}
 
 	c.Apply(spec)

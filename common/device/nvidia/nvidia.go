@@ -17,7 +17,11 @@ type Nvidia struct {
 }
 
 func (n *Nvidia) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	return &device.ContainerVolume{}
+	v := &device.ContainerVolume{}
+
+	v.Binaries = []string{"nvidia-smi"}
+	v.Libraries = []string{"libnvidia-ml.so"}
+	return v
 }
 
 func (n *Nvidia) GetDeviceModel(idx int) (string, error) {
@@ -78,6 +82,7 @@ func (n *Nvidia) GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerA
 
 	r.Envs = make(map[string]string)
 	r.Envs["NVIDIA_VISIBLE_DEVICES"] = idxsStr
+	r.Envs["KRAKENPLUG_VISIBLE_DEVICES"] = idxsStr
 
 	return r, nil
 }

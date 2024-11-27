@@ -37,6 +37,7 @@ func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
 	})
 
 	v.Binaries = []string{"cnmon"}
+	v.Libraries = []string{"libcndev.so"}
 
 	return v
 }

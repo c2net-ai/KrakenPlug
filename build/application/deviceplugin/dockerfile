@@ -19,4 +19,6 @@ COPY --from=builder /app/build/application/deviceplugin/start.sh /app/start.sh
 
 RUN chmod +x /app/deviceplugin /app/copy_lib.sh /app/start.sh
 
+env KRAKENPLUG_VISIBLE_DEVICES=all
+
 ENTRYPOINT ["/app/start.sh"]
