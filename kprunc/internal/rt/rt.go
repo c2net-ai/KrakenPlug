@@ -40,7 +40,7 @@ func (rt *Runtime) Run(args []string) error {
 		return fmt.Errorf("error constructing OCI specification: %v", err)
 	}
 
-	specModifier := NewModifySpec(device)
+	specModifier := NewModifySpec(logger, device)
 
 	return oci.NewModifyingRuntimeWrapper(
 		logger,
