@@ -9,6 +9,7 @@ import (
 	"huawei.com/npu-exporter/v6/common-utils/utils"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
+	"os"
 	"strconv"
 	"strings"
 )
@@ -44,6 +45,10 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	devices := strings.Replace(envDevices, EnvVisibleDevices+"=", "", -1)
+	if devices == "" {
+		m.logger.Debugf("No device specified")
+		return nil
+	}
 
 	var idxs []int
 	if devices == "all" {
@@ -71,6 +76,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		return nil
 	}
 
+	m.logger.Infof("Device index: %v", idxs)
 	response := m.device.GetContainerVolume(idxs)
 
 	c := cdi.ContainerEdits{
@@ -78,6 +84,11 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	for _, r := range response.Mounts {
+		_, err := os.Stat(r.HostPath)
+		if err != nil {
+			m.logger.Errorf("Failed to find host path: %v", err)
+			continue
+		}
 		c.Append(&cdi.ContainerEdits{
 			ContainerEdits: &cdispecs.ContainerEdits{
 				Mounts: []*cdispecs.Mount{
@@ -92,6 +103,12 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	for _, d := range response.Devices {
+		_, err := os.Stat(d.HostPath)
+		if err != nil {
+			m.logger.Errorf("Failed to find host path: %v", err)
+			continue
+		}
+		m.logger.Infof("Device path: %v", d.HostPath)
 		c.Append(&cdi.ContainerEdits{
 			ContainerEdits: &cdispecs.ContainerEdits{
 				DeviceNodes: []*cdispecs.DeviceNode{
@@ -107,6 +124,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	for _, b := range response.Binaries {
 		exist, path := util.FindExecutableFile(b)
 		if exist {
+			m.logger.Infof("Binary path: %v", path)
 			c.Append(&cdi.ContainerEdits{
 				ContainerEdits: &cdispecs.ContainerEdits{
 					Mounts: []*cdispecs.Mount{

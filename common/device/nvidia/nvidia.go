@@ -19,6 +19,31 @@ type Nvidia struct {
 func (n *Nvidia) GetContainerVolume(idxs []int) *device.ContainerVolume {
 	v := &device.ContainerVolume{}
 
+	for i, id := range idxs {
+		v.Devices = append(v.Devices, &device.DeviceSpec{
+			HostPath:      fmt.Sprintf("/dev/nvidia%d", id),
+			ContainerPath: fmt.Sprintf("/dev/nvidia%d", i),
+		})
+	}
+
+	nvctl := "/dev/nvctl"
+	nvuvm := "/dev/nvidia-uvm"
+	nvuvmtools := "/dev/nvidia-uvm-tools"
+	v.Devices = append(v.Devices,
+		&device.DeviceSpec{
+			HostPath:      nvctl,
+			ContainerPath: nvctl,
+		},
+		&device.DeviceSpec{
+			HostPath:      nvuvm,
+			ContainerPath: nvuvm,
+		},
+		&device.DeviceSpec{
+			HostPath:      nvuvmtools,
+			ContainerPath: nvuvmtools,
+		},
+	)
+
 	v.Binaries = []string{"nvidia-smi"}
 	v.Libraries = []string{"libnvidia-ml.so"}
 	return v
