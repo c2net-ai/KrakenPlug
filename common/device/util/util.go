@@ -20,7 +20,7 @@ var (
 		device.Enflame:   "libefml.so",
 		device.Cambricon: "libcndev.so",
 		device.Ascend:    "libdcmi.so",
-		device.Nvidia:    "libnvidia-ml.so",
+		device.Nvidia:    "libnvidia-ml.so.1",
 	}
 )
 

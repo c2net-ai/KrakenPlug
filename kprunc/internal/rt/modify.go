@@ -6,9 +6,10 @@ import (
 	cdispecs "github.com/container-orchestrated-devices/container-device-interface/specs-go"
 	"github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/sirupsen/logrus"
-	"huawei.com/npu-exporter/v6/common-utils/utils"
+	"k8s.io/kubernetes/pkg/kubelet/util/sliceutils"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"os"
 	"strconv"
 	"strings"
@@ -76,7 +77,6 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		return nil
 	}
 
-	m.logger.Infof("Device index: %v", idxs)
 	response := m.device.GetContainerVolume(idxs)
 
 	c := cdi.ContainerEdits{
@@ -108,7 +108,6 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 			m.logger.Errorf("Failed to find host path: %v", err)
 			continue
 		}
-		m.logger.Infof("Device path: %v", d.HostPath)
 		c.Append(&cdi.ContainerEdits{
 			ContainerEdits: &cdispecs.ContainerEdits{
 				DeviceNodes: []*cdispecs.DeviceNode{
@@ -124,14 +123,14 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	for _, b := range response.Binaries {
 		exist, path := util.FindExecutableFile(b)
 		if exist {
-			m.logger.Infof("Binary path: %v", path)
 			c.Append(&cdi.ContainerEdits{
 				ContainerEdits: &cdispecs.ContainerEdits{
 					Mounts: []*cdispecs.Mount{
 						{
 							ContainerPath: fmt.Sprintf("/usr/local/bin/%v", b),
-							HostPath:      path,
-							Options:       mountOptions,
+							//ContainerPath: path,
+							HostPath: path,
+							Options:  mountOptions,
 						},
 					},
 				},
@@ -149,7 +148,8 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 			ContainerEdits: &cdispecs.ContainerEdits{
 				Mounts: []*cdispecs.Mount{
 					{
-						ContainerPath: fmt.Sprintf("/usr/lib/%v", l),
+						//ContainerPath: libPath,
+						ContainerPath: fmt.Sprintf("/usr/lib/%v", libPath[strings.LastIndex(libPath, "/"):]),
 						HostPath:      libPath,
 						Options:       mountOptions,
 					},
@@ -158,7 +158,19 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		})
 	}
 
-	c.Apply(spec)
+	args := spec.Process.Args
+	var newArgs []string
 
+	ldconfig := "ldconfig > /dev/null 2>&1;"
+
+	// shell方式的启动命令这样修改没影响，但是如果exec改为shell启动会影响终止等信号传递，以及环境变量行为上有些差异。
+	// 暂时先用这种方案，后续可考虑优化为hook时去ldconfig。
+	if len(args) == 3 && (sliceutils.StringInSlice(args[0], []string{"bash", "sh"})) && args[1] == "-c" {
+		newArgs = []string{args[0], args[1], fmt.Sprintf("%s%s", ldconfig, args[2])}
+	}
+
+	spec.Process.Args = newArgs
+
+	c.Apply(spec)
 	return nil
 }
