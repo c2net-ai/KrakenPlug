@@ -158,17 +158,13 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	args := spec.Process.Args
-	var newArgs []string
-
 	ldconfig := "ldconfig > /dev/null 2>&1;"
 
 	//shell方式的启动命令这样修改没影响，但是如果exec改为shell启动会影响终止等信号传递，以及环境变量行为上有些差异。
 	//暂时先用这种方案，后续可考虑优化为hook时去ldconfig。
 	if len(args) == 3 && (utils.StringInSlice(args[0], []string{"bash", "sh"})) && args[1] == "-c" {
-		newArgs = []string{args[0], args[1], fmt.Sprintf("%s%s", ldconfig, args[2])}
+		spec.Process.Args = []string{args[0], args[1], fmt.Sprintf("%s%s", ldconfig, args[2])}
 	}
-
-	spec.Process.Args = newArgs
 
 	c.Apply(spec)
 	return nil
