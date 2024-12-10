@@ -157,11 +157,31 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		})
 	}
 
+	for _, dir := range response.LibraryDirs {
+		if utils.IsExist(dir) {
+			c.Append(&cdi.ContainerEdits{
+				ContainerEdits: &cdispecs.ContainerEdits{
+					Mounts: []*cdispecs.Mount{
+						{
+							ContainerPath: dir,
+							HostPath:      dir,
+							Options:       mountOptions,
+						},
+					},
+				},
+			})
+		}
+	}
+
 	args := spec.Process.Args
-	ldconfig := "ldconfig > /dev/null 2>&1"
+	preCmd := "ldconfig > /dev/null 2>&1"
+
+	if len(response.Libraries) > 0 {
+		preCmd += fmt.Sprintf(";export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH", strings.Join(response.LibraryDirs, ":"))
+	}
 
 	// 暂时先用这种方案，后续可考虑优化为hook时去ldconfig
-	spec.Process.Args = []string{"sh", "-c", fmt.Sprintf("%s;exec %s", ldconfig, strings.Join(args, " "))}
+	spec.Process.Args = []string{"sh", "-c", fmt.Sprintf("%s;exec %s", preCmd, strings.Join(args, " "))}
 
 	c.Apply(spec)
 	return nil

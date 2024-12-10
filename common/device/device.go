@@ -29,10 +29,11 @@ type MountSpec struct {
 }
 
 type ContainerVolume struct {
-	Devices   []*DeviceSpec
-	Mounts    []*MountSpec
-	Binaries  []string // 可执行文件, 只需要填入文件名, 不需要带路径
-	Libraries []string
+	Devices     []*DeviceSpec
+	Mounts      []*MountSpec
+	Binaries    []string // 可执行文件, 只需要填入文件名, 不需要带路径
+	Libraries   []string // 动态库, 只需要填入文件名, 不需要带路径
+	LibraryDirs []string // 动态库路径
 }
 
 type Device interface {

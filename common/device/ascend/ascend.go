@@ -19,7 +19,44 @@ type Ascend struct {
 }
 
 func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	return &device.ContainerVolume{}
+	v := &device.ContainerVolume{}
+
+	for i, id := range idxs {
+		v.Devices = append(v.Devices, &device.DeviceSpec{
+			HostPath:      fmt.Sprintf("/dev/davinci%d", id),
+			ContainerPath: fmt.Sprintf("/dev/davinci%d", i),
+		})
+	}
+
+	devManager := "/dev/davinci_manager"
+	devSvm := "/dev/devmm_svm"
+	devHdc := "/dev/hisi_hdc"
+	v.Devices = append(v.Devices,
+		&device.DeviceSpec{
+			HostPath:      devManager,
+			ContainerPath: devManager,
+		},
+		&device.DeviceSpec{
+			HostPath:      devSvm,
+			ContainerPath: devSvm,
+		},
+		&device.DeviceSpec{
+			HostPath:      devHdc,
+			ContainerPath: devHdc,
+		},
+	)
+
+	v.Binaries = []string{
+		"dcmi",
+		"npu-smi",
+	}
+
+	v.LibraryDirs = []string{
+		"/usr/local/Ascend/driver/lib64",
+		"/usr/local/Ascend/driver/include",
+	}
+
+	return v
 }
 
 func (c *Ascend) GetDeviceModel(idx int) (string, error) {
