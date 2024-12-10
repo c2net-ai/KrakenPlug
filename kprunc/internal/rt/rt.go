@@ -28,9 +28,13 @@ func (rt *Runtime) Run(args []string) error {
 		return fmt.Errorf("could not create low level runtime: %v", err)
 	}
 
+	if !oci.HasCreateSubcommand(args) {
+		logger.Infof("Skipping modifier for non-create subcommand")
+		return lowLevelRuntime.Exec(args)
+	}
+
 	device, err := util.NewDevice()
-	if !oci.HasCreateSubcommand(args) || err != nil {
-		logger.Tracef("Skipping modifier for non-create subcommand")
+	if err != nil {
 		return lowLevelRuntime.Exec(args)
 	}
 	defer device.Shutdown()

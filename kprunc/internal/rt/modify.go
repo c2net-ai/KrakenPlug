@@ -176,7 +176,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	args := spec.Process.Args
 	preCmd := "ldconfig > /dev/null 2>&1"
 
-	if len(response.Libraries) > 0 {
+	if len(response.LibraryDirs) > 0 {
 		preCmd += fmt.Sprintf(";export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH", strings.Join(response.LibraryDirs, ":"))
 	}
 

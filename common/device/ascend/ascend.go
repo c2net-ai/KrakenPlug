@@ -52,8 +52,8 @@ func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
 	}
 
 	v.LibraryDirs = []string{
-		"/usr/local/Ascend/driver/lib64",
-		"/usr/local/Ascend/driver/include",
+		"/usr/local/Ascend/driver/lib64/common",
+		"/usr/local/Ascend/driver/lib64/driver",
 	}
 
 	return v
