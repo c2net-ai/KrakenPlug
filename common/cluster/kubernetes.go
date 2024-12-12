@@ -5,8 +5,6 @@ import (
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"os"
 	"path/filepath"
 )
@@ -39,7 +37,7 @@ func buildConfigFromFlagsOrCluster(configPath string) (*rest.Config, error) {
 func NewClient() (*kubernetes.Clientset, error) {
 	restConfig, err := buildConfigFromFlagsOrCluster("")
 	if err != nil {
-		return nil, errors.Errorf(err, "load kubernetes config failed")
+		return nil, fmt.Errorf("load kubernetes config: %v", err)
 	}
 	return kubernetes.NewForConfigOrDie(restConfig), nil
 }

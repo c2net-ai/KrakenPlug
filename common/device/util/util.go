@@ -4,13 +4,13 @@ package util
 // #include <dlfcn.h>
 import "C"
 import (
+	"errors"
 	"k8s.io/klog/v2"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/ascend"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"os"
 	"path/filepath"
 )

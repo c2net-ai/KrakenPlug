@@ -3,12 +3,10 @@ package ascend
 import (
 	"context"
 	"fmt"
-	"huawei.com/npu-exporter/v6/devmanager/common"
-	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
-
 	"huawei.com/npu-exporter/v6/common-utils/hwlog"
 	"huawei.com/npu-exporter/v6/devmanager"
+	"huawei.com/npu-exporter/v6/devmanager/common"
+	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
@@ -62,7 +60,7 @@ func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
 func (c *Ascend) GetDeviceModel(idx int) (string, error) {
 	chipInfo, err := c.dmgr.GetChipInfo(int32(idx))
 	if err != nil {
-		return "", errors.Errorf(err, "failed to get product type")
+		return "", fmt.Errorf("get product type: %v", err)
 	}
 
 	return chipInfo.Name, nil
@@ -72,7 +70,7 @@ func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	hbmInfo, err := c.dmgr.GetDeviceHbmInfo(int32(idx))
 	klog.Infof("memorySize: %d, usage: %d", hbmInfo.MemorySize, hbmInfo.Usage)
 	if err != nil {
-		return nil, errors.Errorf(nil, "failed to get device %d hbm info: %v", idx, err)
+		return nil, fmt.Errorf("get device %d hbm info: %v", idx, err)
 	}
 	return &device.MemInfo{
 		Total: uint32(hbmInfo.MemorySize),
@@ -83,7 +81,7 @@ func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 func (c *Ascend) GetDeviceUtil(idx int) (int, error) {
 	rate, err := c.dmgr.GetDeviceUtilizationRate(int32(idx), common.AICore)
 	if err != nil {
-		return 0, errors.Errorf(nil, "failed to get device %d utilization rate: %v", idx, err)
+		return 0, fmt.Errorf("get device %d utilization rate: %v", idx, err)
 	}
 	return int(rate), nil
 }

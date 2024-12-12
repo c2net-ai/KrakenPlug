@@ -1,9 +1,9 @@
 package nvidia
 
 import (
+	"errors"
 	"fmt"
 	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 
@@ -123,11 +123,11 @@ func (n *Nvidia) GetContainerVolume(idxs []int) *device.ContainerVolume {
 func (n *Nvidia) GetDeviceModel(idx int) (string, error) {
 	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
 	if !isSuccess(r) {
-		return "", errors.Errorf(nil, "Get DeviceHandleByIndex error")
+		return "", fmt.Errorf("get device handle failed, ret: %v", r)
 	}
 	name, r := n.nvmllib.DeviceGetName(device)
 	if !isSuccess(r) {
-		return "", errors.Errorf(nil, "Get Name error")
+		return "", fmt.Errorf("get device name failed, ret: %v", r)
 	}
 
 	return name, nil
@@ -136,11 +136,11 @@ func (n *Nvidia) GetDeviceModel(idx int) (string, error) {
 func (n *Nvidia) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	d, r := n.nvmllib.DeviceGetHandleByIndex(idx)
 	if !isSuccess(r) {
-		return nil, errors.Errorf(nil, "Get DeviceHandleByIndex error")
+		return nil, fmt.Errorf("get device handle failed, ret: %v", r)
 	}
 	memoryInfo, r := n.nvmllib.DeviceGetMemoryInfo_v2(d)
 	if !isSuccess(r) {
-		return nil, errors.Errorf(nil, "Get MemoryInfo error")
+		return nil, fmt.Errorf("get memery info failed, ret: %v", r)
 	}
 
 	return &device.MemInfo{
@@ -155,8 +155,8 @@ func isSuccess(ret nvml.Return) bool {
 func (n *Nvidia) Shutdown() error {
 	ret := n.nvmllib.Shutdown()
 	if !isSuccess(ret) {
-		klog.Infof("Error shutting down NVML: %v", ret)
-		return errors.Errorf(nil, "Error shutting down NVML: %v", ret)
+		klog.Infof("shutting down nvml failed, ret: %v", ret)
+		return fmt.Errorf("shutting down nvml failed, ret: %v", ret)
 	}
 
 	return nil
@@ -190,11 +190,11 @@ func (n *Nvidia) IsDeviceHealthy(idx int) (bool, error) {
 func (n *Nvidia) GetDeviceUtil(idx int) (int, error) {
 	device, r := n.nvmllib.DeviceGetHandleByIndex(idx)
 	if !isSuccess(r) {
-		return 0, errors.Errorf(nil, "Get DeviceHandleByIndex error")
+		return 0, fmt.Errorf("get device handle failed, ret: %v", r)
 	}
 	util, r := n.nvmllib.DeviceGetUtilizationRates(device)
 	if !isSuccess(r) {
-		return 0, errors.Errorf(nil, "Get UtilizationRates error")
+		return 0, fmt.Errorf("get utilization rates failed, ret: %v", r)
 	}
 
 	return int(util.Gpu), nil

@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/urfave/cli"
 	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/devicediscovery/internal/labeler"
 	"time"
 )

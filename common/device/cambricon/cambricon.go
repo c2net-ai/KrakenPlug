@@ -7,7 +7,6 @@ import (
 	"fmt"
 	"golang.org/x/sys/unix"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon/lib"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"path/filepath"
 	"unsafe"
@@ -45,7 +44,7 @@ func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
 func (c *Cambricon) GetDeviceModel(idx int) (string, error) {
 	ret := lib.GetCardNameStringByDevId(int32(idx))
 	if ret == nil {
-		return "", errors.Errorf(nil, "get card name failed")
+		return "", fmt.Errorf("get card name failed, ret: %v", ret)
 	}
 
 	return unix.BytePtrToString(ret), nil
