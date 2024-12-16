@@ -97,3 +97,11 @@ helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 ## KPSMI
 KPSMI是查询异构设备信息的客户端工具，可以通过KPSMI查询异构设备信息，包括设备厂商、设备型号、设备内存等。
 <img src="./docs/imgs/kpsmi.png"  width=600px />
+
+## KPRUNC
+
+包装主机上安装的容器运行时，使得通过指定简单统一的环境变量来将AI设备挂载到容器中使用，而不需要去了解各种AI设备相关的目录和文件。
+
+| 环境变量名称               | 可选值        |
+| -------------------------- | ------------- |
+| KRAKENPLUG_VISIBLE_DEVICES | all,0,1,2,... |

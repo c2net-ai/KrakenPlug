@@ -18,6 +18,24 @@ type MemInfo struct {
 	Used  uint32
 }
 
+type DeviceSpec struct {
+	HostPath      string
+	ContainerPath string
+}
+
+type MountSpec struct {
+	ContainerPath string
+	HostPath      string
+}
+
+type ContainerVolume struct {
+	Devices     []*DeviceSpec
+	Mounts      []*MountSpec
+	Binaries    []string // 可执行文件, 只需要填入文件名, 不需要带路径
+	Libraries   []string // 动态库, 只需要填入文件名, 不需要带路径
+	LibraryDirs []string // 动态库路径
+}
+
 type Device interface {
 	Shutdown() error
 	GetDeviceCount() (int, error)
@@ -28,6 +46,7 @@ type Device interface {
 	K8sResourceName() string
 	GetDeviceMemoryInfo(idx int) (*MemInfo, error)
 	GetDeviceModel(idx int) (string, error)
+	GetContainerVolume(idxs []int) *ContainerVolume
 }
 
 func K8sResourceName(name string) string {
