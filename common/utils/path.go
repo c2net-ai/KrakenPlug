@@ -20,7 +20,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"os/exec"
 	"path"
@@ -298,7 +297,7 @@ func parseLibFromLdCmd(libraryName string) (string, error) {
 	}
 	defer func() {
 		if err = grepCmd.Wait(); err != nil {
-			log.Printf("command exec failed, %v", err)
+			//log.Printf("command exec failed, %v", err)
 		}
 	}()
 	reader := bufio.NewReader(stdout)
