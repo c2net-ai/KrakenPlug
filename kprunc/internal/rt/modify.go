@@ -181,8 +181,18 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	// 暂时先用这种方案，后续可考虑优化为hook时去ldconfig
-	spec.Process.Args = []string{"sh", "-c", fmt.Sprintf("%s;exec %s", preCmd, strings.Join(args, " "))}
+	if isShellCmd(args) {
+		spec.Process.Args = []string{args[0], args[1], fmt.Sprintf("%s;%s", preCmd, args[2])}
+	} else {
+		spec.Process.Args = []string{"sh", "-c", fmt.Sprintf("%s;exec %s", preCmd, strings.Join(args, " "))}
+	}
 
 	c.Apply(spec)
 	return nil
+}
+
+func isShellCmd(args []string) bool {
+	return len(args) == 3 &&
+		(utils.StringInSlice(args[0], []string{"bash", "sh"}) || strings.Contains(args[0], "/bin/bash") || strings.Contains(args[0], "/bin/sh")) &&
+		args[1] == "-c"
 }
