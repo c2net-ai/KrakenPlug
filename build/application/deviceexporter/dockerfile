@@ -15,7 +15,7 @@ FROM ubuntu:20.04
 WORKDIR /app
 COPY --from=builder /app/bin/deviceexporter /app/deviceexporter
 COPY --from=builder /app/build/application/deviceexporter/start.sh /app/start.sh
-RUN chmod +x /app/deviceexporter /app/copy_lib.sh /app/start.sh
+RUN chmod +x /app/deviceexporter  /app/start.sh
 
 env KRAKENPLUG_VISIBLE_DEVICES=none
 

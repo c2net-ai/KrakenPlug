@@ -16,7 +16,7 @@ WORKDIR /app
 COPY --from=builder /app/bin/deviceplugin /app/deviceplugin
 COPY --from=builder /app/build/application/deviceplugin/start.sh /app/start.sh
 
-RUN chmod +x /app/deviceplugin /app/copy_lib.sh /app/start.sh
+RUN chmod +x /app/deviceplugin /app/start.sh
 
 env KRAKENPLUG_VISIBLE_DEVICES=none
 
