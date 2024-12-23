@@ -177,7 +177,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	preCmd := "ldconfig > /dev/null 2>&1"
 
 	if len(response.LibraryDirs) > 0 {
-		preCmd += fmt.Sprintf(";export LD_LIBRARY_PATH=%s:$LD_LIBRARY_PATH", strings.Join(response.LibraryDirs, ":"))
+		preCmd = fmt.Sprintf(`echo '%s' >> /etc/ld.so.conf;%s`, strings.Join(response.LibraryDirs, "\n"), preCmd)
 	}
 
 	// 暂时先用这种方案，后续可考虑优化为hook时去ldconfig
