@@ -15,6 +15,8 @@ spec:
     spec:
       containers:
         - name: {{ .Chart.Name }}
+          securityContext:
+            privileged: true
           #image: "deviceplugin:v1.0"
           image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
           volumeMounts:
