@@ -16,6 +16,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           securityContext:
+            #由于有些晟腾设备无法多个容器挂载同一个设备，这里使用privileged模式解决
             privileged: true
           #image: "deviceplugin:v1.0"
           image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"

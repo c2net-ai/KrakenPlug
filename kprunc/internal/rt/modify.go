@@ -51,24 +51,26 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	}
 
 	var idxs []int
-	if devices == "all" {
-		cnt, err := m.device.GetDeviceCount()
-		if err != nil {
-			m.logger.Errorf("GetDeviceCount failed: %v", err)
-			return nil
-		}
-		for i := 0; i < cnt; i++ {
-			idxs = append(idxs, i)
-		}
-	} else {
-		split := strings.Split(devices, ",")
-		for _, d := range split {
-			i, err := strconv.Atoi(d)
+	if devices != "none" {
+		if devices == "all" {
+			cnt, err := m.device.GetDeviceCount()
 			if err != nil {
-				m.logger.Errorf("Invalid device index: %v", d)
+				m.logger.Errorf("GetDeviceCount failed: %v", err)
 				return nil
 			}
-			idxs = append(idxs, i)
+			for i := 0; i < cnt; i++ {
+				idxs = append(idxs, i)
+			}
+		} else {
+			split := strings.Split(devices, ",")
+			for _, d := range split {
+				i, err := strconv.Atoi(d)
+				if err != nil {
+					m.logger.Errorf("Invalid device index: %v", d)
+					return nil
+				}
+				idxs = append(idxs, i)
+			}
 		}
 	}
 
