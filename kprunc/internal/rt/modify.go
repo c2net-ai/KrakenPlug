@@ -72,10 +72,6 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		}
 	}
 
-	if len(idxs) == 0 {
-		return nil
-	}
-
 	response := m.device.GetContainerVolume(idxs)
 
 	c := cdi.ContainerEdits{
