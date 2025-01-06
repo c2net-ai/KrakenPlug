@@ -111,3 +111,27 @@ charts_push:
 	cp ./tmp/charts/krakenplug-${RELEASE_VER}.tgz ${CHARTS_GIT_DIR}
 	helm repo index ${CHARTS_GIT_DIR} --url ${CHARTS_GIT_RAW}
 	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add index.yaml krakenplug-${RELEASE_VER}.tgz && git commit -m "${RELEASE_VER}" && git push
+
+
+# run
+runpkg_push:
+	mkdir -p kptools
+	CGO_ENABLED=1 GOARCH=amd64 go build -o kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 GOARCH=amd64 go build -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	tar -zcvf kptools.tar.gz kptools
+	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-amd64.run
+	rm kptools.tar.gz
+	rm -rf kptools
+
+	mkdir -p kptools
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -o ./kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -o ./kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	tar -zcvf kptools.tar.gz kptools
+	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-arm64.run
+	rm kptools.tar.gz
+	rm -rf kptools
+
+	git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-arm64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git push
+
+
+
