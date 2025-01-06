@@ -131,7 +131,9 @@ runpkg_push:
 	rm kptools.tar.gz
 	rm -rf kptools
 
-	git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-arm64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git push
+	git clone ${CHARTS_GIT_CLONE} ${CHARTS_GIT_DIR}
+	cp krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run ${CHARTS_GIT_DIR}
+	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git push
 
 
 
