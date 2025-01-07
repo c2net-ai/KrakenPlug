@@ -24,12 +24,12 @@ NEED_LATEST=$(need_latest)
 
 DRONE_REPO=$(drone_repo)
 
-
+CLI_VERSION_PACKAGE = openi.pcl.ac.cn/Kraken/KrakenPlug/common/info
 # 静态变量
-Date=`date "+%Y-%m-%d %H:%M:%S"`
 LD_FLAGS=" \
-    -X 'main.Built=${Date}'   \
-    -X 'main.Version=${RELEASE_VER}'"
+    -X '$(CLI_VERSION_PACKAGE).gitCommit=`git log --pretty=format:'%h' -1`'   \
+    -X '$(CLI_VERSION_PACKAGE).version=${RELEASE_VER}'"
+
 
 # 编译
 all_build: deviceplugin_build deviceexporter_build devicediscovery_build
@@ -48,6 +48,9 @@ devicediscovery_build: init
 
 kpsmi_build: init
 	cd ./kpsmi && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
+
+kprunc_build: init
+	cd ./kprunc && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
 
 # 构建镜像
 images: deviceplugin_image deviceexporter_image devicediscovery_image
@@ -116,16 +119,16 @@ charts_push:
 # run
 runpkg_push:
 	mkdir -p kptools
-	CGO_ENABLED=1 GOARCH=amd64 go build -o kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
-	CGO_ENABLED=1 GOARCH=amd64 go build -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
 	tar -zcvf kptools.tar.gz kptools
 	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-amd64.run
 	rm kptools.tar.gz
 	rm -rf kptools
 
 	mkdir -p kptools
-	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -o ./kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
-	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -o ./kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kprunc ./kprunc/cmd/kprunc/main.go
 	tar -zcvf kptools.tar.gz kptools
 	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-arm64.run
 	rm kptools.tar.gz
