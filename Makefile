@@ -71,33 +71,33 @@ image_push_init:
 	(echo ${DOCKER_HUB_PASSWD} | docker login ${DOCKER_HUB_HOST} -u ${DOCKER_HUB_USERNAME} --password-stdin) 1>/dev/null 2>&1
 
 deviceplugin_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
 #	docker tag deviceplugin:${RELEASE_VER} ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER}
 #	docker push ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER}
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
 endif
 endif
 
 deviceexporter_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
 #	docker tag deviceexporter:${RELEASE_VER} ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER}
 #	docker push ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER}
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
 endif
 endif
 
 devicediscovery_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
 endif
 endif
 

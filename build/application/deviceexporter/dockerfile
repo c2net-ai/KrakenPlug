@@ -8,8 +8,9 @@ WORKDIR /app
 COPY ./go.mod ./go.sum ./
 RUN cd ./ && go mod download
 COPY ./ ./
+ARG tag
 
-RUN make deviceexporter_build binary_dir="/app/bin"
+RUN make deviceexporter_build binary_dir="/app/bin" tag="${tag}"
 
 FROM ubuntu:20.04
 WORKDIR /app
