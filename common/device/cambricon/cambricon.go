@@ -35,7 +35,7 @@ func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
 		ContainerPath: mluMonitorDeviceName,
 	})
 
-	v.Binaries = []string{"cnmon"}
+	v.Binaries = []string{"cnmon", "kpsmi"}
 	v.Libraries = []string{"libcndev.so"}
 
 	return v

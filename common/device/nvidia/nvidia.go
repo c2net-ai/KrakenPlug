@@ -57,6 +57,7 @@ func (n *Nvidia) GetContainerVolume(idxs []int) *device.ContainerVolume {
 		// compute_bins
 		"nvidia-cuda-mps-control", /* Multi process service CLI */
 		"nvidia-cuda-mps-server",  /* Multi process service server */
+		"kpsmi",
 	}
 	v.Libraries = []string{
 		// utility_libs

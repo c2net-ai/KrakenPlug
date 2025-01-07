@@ -47,6 +47,7 @@ func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
 	v.Binaries = []string{
 		"dcmi",
 		"npu-smi",
+		"kpsmi",
 	}
 
 	v.LibraryDirs = []string{
