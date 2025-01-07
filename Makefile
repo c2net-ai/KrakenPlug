@@ -113,7 +113,7 @@ charts_push:
 	git clone ${CHARTS_GIT_CLONE} ${CHARTS_GIT_DIR}
 	cp ./tmp/charts/krakenplug-${RELEASE_VER}.tgz ${CHARTS_GIT_DIR}
 	helm repo index ${CHARTS_GIT_DIR} --url ${CHARTS_GIT_RAW}
-	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add index.yaml krakenplug-${RELEASE_VER}.tgz && git commit -m "${RELEASE_VER}" && git push
+	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add index.yaml krakenplug-${RELEASE_VER}.tgz && git commit -m "${RELEASE_VER}" &&  git pull && git push
 
 
 # run
@@ -136,7 +136,7 @@ runpkg_push:
 
 	git clone ${CHARTS_GIT_CLONE} ${CHARTS_GIT_DIR}
 	cp krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run ${CHARTS_GIT_DIR}
-	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git push
+	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git pull && git push
 
 
 
