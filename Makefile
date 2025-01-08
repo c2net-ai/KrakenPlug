@@ -24,12 +24,12 @@ NEED_LATEST=$(need_latest)
 
 DRONE_REPO=$(drone_repo)
 
-
+CLI_VERSION_PACKAGE = openi.pcl.ac.cn/Kraken/KrakenPlug/common/info
 # 静态变量
-Date=`date "+%Y-%m-%d %H:%M:%S"`
 LD_FLAGS=" \
-    -X 'main.Built=${Date}'   \
-    -X 'main.Version=${RELEASE_VER}'"
+    -X '$(CLI_VERSION_PACKAGE).gitCommit=`git log --pretty=format:'%h' -1`'   \
+    -X '$(CLI_VERSION_PACKAGE).version=${RELEASE_VER}'"
+
 
 # 编译
 all_build: deviceplugin_build deviceexporter_build devicediscovery_build
@@ -48,6 +48,9 @@ devicediscovery_build: init
 
 kpsmi_build: init
 	cd ./kpsmi && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
+
+kprunc_build: init
+	cd ./kprunc && go build -ldflags ${LD_FLAGS} -o ${BINARY_DIR} ./...
 
 # 构建镜像
 images: deviceplugin_image deviceexporter_image devicediscovery_image
@@ -68,33 +71,33 @@ image_push_init:
 	(echo ${DOCKER_HUB_PASSWD} | docker login ${DOCKER_HUB_HOST} -u ${DOCKER_HUB_USERNAME} --password-stdin) 1>/dev/null 2>&1
 
 deviceplugin_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
 #	docker tag deviceplugin:${RELEASE_VER} ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER}
 #	docker push ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:${RELEASE_VER}
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceplugin:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceplugin/dockerfile . --push
 endif
 endif
 
 deviceexporter_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
 #	docker tag deviceexporter:${RELEASE_VER} ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER}
 #	docker push ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:${RELEASE_VER}
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/deviceexporter:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/deviceexporter/dockerfile . --push
 endif
 endif
 
 devicediscovery_image_push: image_push_init
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:${RELEASE_VER} --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
 
 ifneq (${RELEASE_VER}, latest)
 ifeq (${NEED_LATEST}, TRUE)
-	docker buildx build -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
+	docker buildx build --build-arg tag=${RELEASE_VER} -t ${DOCKER_HUB_HOST}/${DOCKER_HUB_PROJECT}/devicediscovery:latest --platform=linux/arm64,linux/amd64 --provenance=false -f ./build/application/devicediscovery/dockerfile . --push
 endif
 endif
 
@@ -110,4 +113,30 @@ charts_push:
 	git clone ${CHARTS_GIT_CLONE} ${CHARTS_GIT_DIR}
 	cp ./tmp/charts/krakenplug-${RELEASE_VER}.tgz ${CHARTS_GIT_DIR}
 	helm repo index ${CHARTS_GIT_DIR} --url ${CHARTS_GIT_RAW}
-	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add index.yaml krakenplug-${RELEASE_VER}.tgz && git commit -m "${RELEASE_VER}" && git push
+	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add index.yaml krakenplug-${RELEASE_VER}.tgz && git commit -m "${RELEASE_VER}" &&  git pull && git push
+
+
+# run
+runpkg_push:
+	mkdir -p kptools
+	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	tar -zcvf kptools.tar.gz kptools
+	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-amd64.run
+	rm kptools.tar.gz
+	rm -rf kptools
+
+	mkdir -p kptools
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
+	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	tar -zcvf kptools.tar.gz kptools
+	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-arm64.run
+	rm kptools.tar.gz
+	rm -rf kptools
+
+	git clone ${CHARTS_GIT_CLONE} ${CHARTS_GIT_DIR}
+	cp krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run ${CHARTS_GIT_DIR}
+	cd ${CHARTS_GIT_DIR} && git config --global user.email ${CHARTS_GIT_USER_EMAIL} && git config --global user.name ${CHARTS_GIT_USER_NAME} && git add krakenplug-${RELEASE_VER}-amd64.run krakenplug-${RELEASE_VER}-arm64.run && git commit -m "${RELEASE_VER}" && git pull && git push
+
+
+

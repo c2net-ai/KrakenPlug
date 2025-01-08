@@ -3,7 +3,6 @@ package app
 import (
 	"github.com/urfave/cli"
 	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/devicediscovery/internal/labeler"
 	"time"
 )
@@ -48,14 +47,14 @@ func action(c *cli.Context) (err error) {
 
 	err = label(config.NodeName)
 	if err != nil {
-		klog.Infof("Failed to label node %s: %v", config.NodeName, errors.Message(err))
+		klog.Infof("Failed to label node %s: %v", config.NodeName, err)
 	}
 	ticker := time.NewTicker(config.SleepInterval)
 	defer ticker.Stop()
 	for range ticker.C {
 		err = label(config.NodeName)
 		if err != nil {
-			klog.Infof("Failed to label node %s: %v", config.NodeName, errors.Message(err))
+			klog.Infof("Failed to label node %s: %v", config.NodeName, err)
 		}
 	}
 	return nil

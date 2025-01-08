@@ -8,14 +8,16 @@ WORKDIR /app
 COPY ./go.mod ./go.sum ./
 RUN cd ./ && go mod download
 COPY ./ ./
+ARG tag
 
-RUN make devicediscovery_build binary_dir="/app/bin"
+RUN make devicediscovery_build binary_dir="/app/bin" tag="${tag}"
 
 FROM ubuntu:20.04
 WORKDIR /app
 COPY --from=builder /app/bin/devicediscovery /app/devicediscovery
-COPY --from=builder /app/build/script/copy_lib.sh /app/copy_lib.sh
 COPY --from=builder /app/build/application/devicediscovery/start.sh /app/start.sh
-RUN chmod +x /app/devicediscovery /app/copy_lib.sh /app/start.sh
+RUN chmod +x /app/devicediscovery /app/start.sh
+
+env KRAKENPLUG_VISIBLE_DEVICES=none
 
 ENTRYPOINT ["/app/start.sh"]

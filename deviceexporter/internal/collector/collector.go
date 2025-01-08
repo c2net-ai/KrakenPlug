@@ -1,11 +1,10 @@
 package collector
 
 import (
+	"fmt"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"strconv"
 	"time"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
 
@@ -67,7 +66,7 @@ func getMetric() map[string]metric {
 func NewCollector(nodeName string) (*collector, error) {
 	device, err := util.NewDevice()
 	if err != nil {
-		return nil, errors.Errorf(err, "new device error")
+		return nil, fmt.Errorf("new device: %v", err)
 	}
 
 	klog.Infof("%s device found", device.Name())
@@ -81,7 +80,7 @@ func NewCollector(nodeName string) (*collector, error) {
 
 	count, err := c.device.GetDeviceCount()
 	if err != nil {
-		return nil, errors.Errorf(err, "get device count error")
+		return nil, fmt.Errorf("get device count: %v", err)
 	}
 	c.deviceCount = count
 	return c, nil

@@ -1,6 +1,7 @@
 package labeler
 
 import (
+	"fmt"
 	"golang.org/x/net/context"
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -8,7 +9,6 @@ import (
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/cluster"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"strconv"
 )
@@ -42,7 +42,7 @@ func (l *Labeler) Label() error {
 	ctx := context.TODO()
 	node, err := l.client.CoreV1().Nodes().Get(ctx, l.nodeName, v1.GetOptions{})
 	if err != nil {
-		return errors.Errorf(err, "failed to get node %s", l.nodeName)
+		return fmt.Errorf("failed to get node %s: %v", l.nodeName, err)
 	}
 
 	node.ObjectMeta.Labels[LabelKeyVendor] = l.device.Name()

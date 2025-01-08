@@ -12,6 +12,10 @@ import (
 type Enflame struct {
 }
 
+func (c *Enflame) GetContainerVolume(idxs []int) *device.ContainerVolume {
+	return &device.ContainerVolume{}
+}
+
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {
 	return "", nil
 }
@@ -55,6 +59,7 @@ func (c *Enflame) GetContainerAllocateResponse(idxs []int) (*pluginapi.Container
 
 	r.Envs = make(map[string]string)
 	r.Envs["ENFLAME_VISIBLE_DEVICES"] = idxsStr
+	r.Envs["KRAKENPLUG_VISIBLE_DEVICES"] = idxsStr
 
 	return r, nil
 }

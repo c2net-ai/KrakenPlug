@@ -28,22 +28,10 @@ spec:
             - name: pod-resources
               readOnly: true
               mountPath: /var/lib/kubelet/pod-resources
-            - name: sys
-              readOnly: true
-              mountPath: /sys
-            - name: usr
-              readOnly: true
-              mountPath: /host/usr
       volumes:
         - name: pod-resources
           hostPath:
             path: /var/lib/kubelet/pod-resources
-        - name: sys
-          hostPath:
-            path: /sys
-        - name: usr
-          hostPath:
-            path: /usr
 ---
 apiVersion: v1
 kind: Service

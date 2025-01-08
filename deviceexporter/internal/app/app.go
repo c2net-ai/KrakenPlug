@@ -1,12 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/signal"
 	"os"
 	"syscall"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
 
@@ -19,8 +18,8 @@ import (
 )
 
 const (
-	CLIAddress  = "address"
-	CLINodeName = "node-name"
+	ParamAddress  = "address"
+	ParamNodeName = "node-name"
 )
 
 func NewApp(buildVersion ...string) *cli.App {
@@ -34,13 +33,13 @@ func NewApp(buildVersion ...string) *cli.App {
 
 	c.Flags = []cli.Flag{
 		&cli.StringFlag{
-			Name:   CLIAddress,
+			Name:   ParamAddress,
 			Value:  ":9400",
 			Usage:  "Address",
 			EnvVar: "KRAKENPLUG_NODE_Address",
 		},
 		&cli.StringFlag{
-			Name:   CLINodeName,
+			Name:   ParamNodeName,
 			Value:  "",
 			Usage:  "Node name",
 			EnvVar: "KRAKENPLUG_NODE_NAME",
@@ -63,7 +62,7 @@ func action(c *cli.Context) (err error) {
 	if nodeName == "" {
 		nodeName, err = os.Hostname()
 		if err != nil {
-			return errors.Errorf(err, "failed to get hostname")
+			return fmt.Errorf("get hostname: %v", err)
 		}
 	}
 
@@ -102,7 +101,7 @@ func action(c *cli.Context) (err error) {
 
 func contextToConfig(c *cli.Context) (*collector.Config, error) {
 	return &collector.Config{
-		Address:  c.String(CLIAddress),
-		NodeName: c.String(CLINodeName),
+		Address:  c.String(ParamAddress),
+		NodeName: c.String(ParamNodeName),
 	}, nil
 }

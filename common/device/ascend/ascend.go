@@ -3,12 +3,10 @@ package ascend
 import (
 	"context"
 	"fmt"
-	"huawei.com/npu-exporter/v6/devmanager/common"
-	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
-
 	"huawei.com/npu-exporter/v6/common-utils/hwlog"
 	"huawei.com/npu-exporter/v6/devmanager"
+	"huawei.com/npu-exporter/v6/devmanager/common"
+	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
@@ -18,10 +16,52 @@ type Ascend struct {
 	dmgr *devmanager.DeviceManager
 }
 
+func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
+	v := &device.ContainerVolume{}
+
+	for i, id := range idxs {
+		v.Devices = append(v.Devices, &device.DeviceSpec{
+			HostPath:      fmt.Sprintf("/dev/davinci%d", id),
+			ContainerPath: fmt.Sprintf("/dev/davinci%d", i),
+		})
+	}
+
+	devManager := "/dev/davinci_manager"
+	devSvm := "/dev/devmm_svm"
+	devHdc := "/dev/hisi_hdc"
+	v.Devices = append(v.Devices,
+		&device.DeviceSpec{
+			HostPath:      devManager,
+			ContainerPath: devManager,
+		},
+		&device.DeviceSpec{
+			HostPath:      devSvm,
+			ContainerPath: devSvm,
+		},
+		&device.DeviceSpec{
+			HostPath:      devHdc,
+			ContainerPath: devHdc,
+		},
+	)
+
+	v.Binaries = []string{
+		"dcmi",
+		"npu-smi",
+		"kpsmi",
+	}
+
+	v.LibraryDirs = []string{
+		"/usr/local/Ascend/driver/lib64/common",
+		"/usr/local/Ascend/driver/lib64/driver",
+	}
+
+	return v
+}
+
 func (c *Ascend) GetDeviceModel(idx int) (string, error) {
 	chipInfo, err := c.dmgr.GetChipInfo(int32(idx))
 	if err != nil {
-		return "", errors.Errorf(err, "failed to get product type")
+		return "", fmt.Errorf("get product type: %v", err)
 	}
 
 	return chipInfo.Name, nil
@@ -31,7 +71,7 @@ func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 	hbmInfo, err := c.dmgr.GetDeviceHbmInfo(int32(idx))
 	klog.Infof("memorySize: %d, usage: %d", hbmInfo.MemorySize, hbmInfo.Usage)
 	if err != nil {
-		return nil, errors.Errorf(nil, "failed to get device %d hbm info: %v", idx, err)
+		return nil, fmt.Errorf("get device %d hbm info: %v", idx, err)
 	}
 	return &device.MemInfo{
 		Total: uint32(hbmInfo.MemorySize),
@@ -42,7 +82,7 @@ func (c *Ascend) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
 func (c *Ascend) GetDeviceUtil(idx int) (int, error) {
 	rate, err := c.dmgr.GetDeviceUtilizationRate(int32(idx), common.AICore)
 	if err != nil {
-		return 0, errors.Errorf(nil, "failed to get device %d utilization rate: %v", idx, err)
+		return 0, fmt.Errorf("get device %d utilization rate: %v", idx, err)
 	}
 	return int(rate), nil
 }
@@ -58,6 +98,7 @@ func (c *Ascend) GetContainerAllocateResponse(idxs []int) (*pluginapi.ContainerA
 
 	r.Envs = make(map[string]string)
 	r.Envs["ASCEND_VISIBLE_DEVICES"] = idxsStr
+	r.Envs["KRAKENPLUG_VISIBLE_DEVICES"] = idxsStr
 
 	return r, nil
 }

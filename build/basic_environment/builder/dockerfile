@@ -4,3 +4,6 @@ ENV GOPATH /go
 ENV CGO_ENABLED 1
 ENV GO111MODULE on
 ENV GOPROXY=https://goproxy.cn,direct
+
+RUN apt update
+RUN apt-get install -y gcc-aarch64-linux-gnu

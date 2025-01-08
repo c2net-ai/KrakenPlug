@@ -1,6 +1,7 @@
 package app
 
 import (
+	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
@@ -8,8 +9,6 @@ import (
 	"github.com/fsnotify/fsnotify"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceplugin/internal/server"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
 
@@ -38,7 +37,7 @@ func action(c *cli.Context) (err error) {
 	klog.Info("Starting FS watcher.")
 	watcher, err := startFSWatcher(pluginapi.DevicePluginPath)
 	if err != nil {
-		return errors.Errorf(err, "Failed to created FS watcher.")
+		return fmt.Errorf("created FS watcher: %v", err)
 	}
 	defer watcher.Close()
 

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/info"
 	"os"
 
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceexporter/internal/app"
@@ -8,12 +9,8 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-var (
-	BuildVersion = "Filled by the build system"
-)
-
 func main() {
-	a := app.NewApp(BuildVersion)
+	a := app.NewApp(info.GetVersionString())
 	if err := a.Run(os.Args); err != nil {
 		logrus.Fatal(err)
 	}

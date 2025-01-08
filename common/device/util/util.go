@@ -4,13 +4,15 @@ package util
 // #include <dlfcn.h>
 import "C"
 import (
+	"errors"
 	"k8s.io/klog/v2"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/ascend"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/cambricon"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/nvidia"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -18,7 +20,7 @@ var (
 		device.Enflame:   "libefml.so",
 		device.Cambricon: "libcndev.so",
 		device.Ascend:    "libdcmi.so",
-		device.Nvidia:    "libnvidia-ml.so",
+		device.Nvidia:    "libnvidia-ml.so.1",
 	}
 )
 
@@ -49,4 +51,19 @@ func NewDevice() (device.Device, error) {
 	klog.Info("not support device")
 
 	return nil, errors.New("not support device")
+}
+
+func FindExecutableFile(file string) (bool, string) {
+	dirs := filepath.SplitList(os.Getenv("PATH"))
+	for _, dir := range dirs {
+		matches, err := filepath.Glob(filepath.Join(dir, file))
+		if err != nil {
+			continue
+		}
+		if len(matches) > 0 {
+			return true, matches[0]
+		}
+	}
+
+	return false, ""
 }

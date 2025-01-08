@@ -150,3 +150,35 @@ steps:
         from_secret: charts_git_user_email
     commands:
       - make charts drone_repo=${DRONE_REPO} tag=${DRONE_TAG} charts_git_clone=$CHARTS_GIT_CLONE charts_git_raw=$CHARTS_GIT_RAW charts_git_user_name=$CHARTS_GIT_USER_NAME charts_git_user_email=$CHARTS_GIT_USER_EMAIL
+
+---
+kind: pipeline
+name: run
+type: kubernetes
+platform:
+  os: linux
+  arch: amd64
+trigger:
+  event:
+    - tag
+volumes:
+  - name: dockeretc
+    host:
+      path: /etc/docker
+steps:
+  - name: Run构建
+    image: swr.cn-south-1.myhuaweicloud.com/krakenplug/builder:v1.0
+    volumes:
+      - name: dockeretc
+        path: /etc/docker
+    environment:
+      CHARTS_GIT_CLONE:
+        from_secret: charts_git_clone
+      CHARTS_GIT_RAW:
+        from_secret: charts_git_raw
+      CHARTS_GIT_USER_NAME:
+        from_secret: charts_git_user_name
+      CHARTS_GIT_USER_EMAIL:
+        from_secret: charts_git_user_email
+    commands:
+      - make runpkg_push drone_repo=${DRONE_REPO} tag=${DRONE_TAG} charts_git_clone=$CHARTS_GIT_CLONE charts_git_raw=$CHARTS_GIT_RAW charts_git_user_name=$CHARTS_GIT_USER_NAME charts_git_user_email=$CHARTS_GIT_USER_EMAIL
