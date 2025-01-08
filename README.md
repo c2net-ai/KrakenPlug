@@ -10,44 +10,79 @@ KrakenPlug是人工智能集群中管理异构AI计算设备的插件和工具�
 
 ## 安装部署
 
+### 安装kpsmi/kprunc工具
+
+在[这里](https://openi.pcl.ac.cn/Kraken/KrakenCharts)下载对应版本的run安装包krakenplug-{version}-{arch}.run并在计算节点上执行：
+
+```shell
+./krakenplug-{version}-{arch}.run
+```
+
+执行成功后查看是否正常输出版本信息：
+
+```shell
+kpsmi -v
+kprunc -v
+```
+
+配置容器运行时为kprunc，docker可以通过/etc/docker/daemon.json增加以下配置并重启docker生效：
+
+```json
+{
+    "default-runtime": "kprunc",
+    "runtimes": {
+        "kprunc": {
+            "path": "kprunc",
+            "runtimeArgs": []
+        }
+    }
+}
+```
+
+
+
+### 安装charts包
+
+#### 下载charts包
+
 执行以下命令增加Chart仓库：
 
-```
+```shell
 helm repo add krakenplug https://openi.pcl.ac.cn/Kraken/KrakenCharts/raw/branch/master
 ```
 
 添加成功后同步仓库信息，如下：
-```
+```shell
 helm repo update
 ```
 
 这里可以先查看krakenplug已有的安装包版本，如下：
-```
+```shell
 helm search repo krakenplug
 ```
 
 然后将krakenplug对应版本的 chart 包下载到本地，并解压，如下：
-```
+```shell
 helm pull krakenplug/krakenplug --version vx.x.x
 tar -zxvf krakenplug-vx.x.x.tgz
 ```
 
-### 配置values.yaml文件
+#### 配置values.yaml文件
 
 部署krakenplug包时，需要修改部署包中的一些参数，这些参数都配置在安装包解压后目录中的values.yaml文件。
 
-### 安装KrakenPlug
+#### 安装KrakenPlug
 进入到解压后的krakenplug目录，执行helm install进行安装：
 
-```
+```shell
 kubectl create ns krakenplug
 helm install krakenplug -n krakenplug ./  --values values.yaml
 ```
 
-### 升级KrakenPlug
+#### 升级KrakenPlug
 如果已经使用helm install成功安装过chart包，执行helm upgrade进行更新：
 
-```
+```shell
 helm upgrade krakenplug -n krakenplug ./  --values values.yaml
 ```
 
