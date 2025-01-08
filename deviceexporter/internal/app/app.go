@@ -1,12 +1,11 @@
 package app
 
 import (
+	"fmt"
 	"net/http"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/signal"
 	"os"
 	"syscall"
-
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/errors"
 
 	"k8s.io/klog/v2"
 
@@ -63,7 +62,7 @@ func action(c *cli.Context) (err error) {
 	if nodeName == "" {
 		nodeName, err = os.Hostname()
 		if err != nil {
-			return errors.Errorf(err, "failed to get hostname")
+			return fmt.Errorf("get hostname: %v", err)
 		}
 	}
 
