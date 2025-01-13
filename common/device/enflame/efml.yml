@@ -13,17 +13,17 @@ PARSER:
   SourcesPaths: [lib/efml.h]
 
 
-#TRANSLATOR:
-#  PtrTips:
-#    function:
-#      - {target: "^Efml", default: "ref"}
-#  MemTips:
-#    - {target: "^Efml", default: "raw"}
-#  Rules:
-#    function:
-#      - {action: accept, from: "^Efml"}
-#      - {action: accept, from: "^efml"}
-#      - {action: replace, from: "^efml"}
-#      - {action: replace, from: "^Efml"}
+TRANSLATOR:
+  PtrTips:
+    function:
+      - {target: "^Efml", default: "ref"}
+  MemTips:
+    - {target: "^efml", default: "raw"}
+  Rules:
+    global:
+      - {action: accept, from: "^Efml"}
+      - {action: accept, from: "^efml"}
+      - {action: replace, from: "^efml"}
+      - {action: replace, from: "^Efml"}
 #      - {action: replace, from: "_t$"}
-#      - {transform: export}
+      - {transform: export}

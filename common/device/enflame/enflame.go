@@ -17,7 +17,16 @@ func (c *Enflame) GetContainerVolume(idxs []int) *device.ContainerVolume {
 }
 
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {
-	return "", nil
+	handle := lib.Handle{
+		Dev_Idx: uint(idx),
+	}
+
+	sku, err := handle.GetDevSKU(uint(idx))
+	if err != nil {
+		return "", err
+	}
+
+	return sku, nil
 }
 
 func (c *Enflame) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
@@ -40,7 +49,7 @@ func (c *Enflame) GetDeviceUtil(idx int) (int, error) {
 	handle := lib.Handle{
 		Dev_Idx: uint(idx),
 	}
-	dtuUsage, err := handle.GetDevDtuUsage()
+	dtuUsage, err := handle.GetDevDtuUsageAsync()
 	if err != nil {
 		return 0, err
 	}
@@ -65,7 +74,7 @@ func (c *Enflame) GetContainerAllocateResponse(idxs []int) (*pluginapi.Container
 }
 
 func NewEnflame() (device.Device, error) {
-	err := lib.InitV2(true)
+	err := lib.InitV2(false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize efml: %v", err)
 	}
