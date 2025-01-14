@@ -123,7 +123,6 @@ runpkg_push:
 	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
 	cp build/application/kprunc/config.yaml kptools
 	tar -zcvf kptools.tar.gz kptools
-	cp build/application/kprunc/config.yaml kptools
 	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-amd64.run
 	rm kptools.tar.gz
 	rm -rf kptools
