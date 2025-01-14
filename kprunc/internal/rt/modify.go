@@ -74,32 +74,14 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		}
 	}
 
-	response := m.device.GetContainerVolume(idxs)
+	deviceVolume := m.device.GetDeviceVolume(idxs)
+	mountVolume := m.device.GetMountVolume()
 
 	c := cdi.ContainerEdits{
 		ContainerEdits: &cdispecs.ContainerEdits{},
 	}
 
-	for _, r := range response.Mounts {
-		_, err := os.Stat(r.HostPath)
-		if err != nil {
-			m.logger.Errorf("Failed to find host path: %v", err)
-			continue
-		}
-		c.Append(&cdi.ContainerEdits{
-			ContainerEdits: &cdispecs.ContainerEdits{
-				Mounts: []*cdispecs.Mount{
-					{
-						ContainerPath: r.ContainerPath,
-						HostPath:      r.HostPath,
-						Options:       mountOptions,
-					},
-				},
-			},
-		})
-	}
-
-	for _, d := range response.Devices {
+	for _, d := range deviceVolume.Devices {
 		_, err := os.Stat(d.HostPath)
 		if err != nil {
 			m.logger.Errorf("Failed to find host path: %v", err)
@@ -117,7 +99,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		})
 	}
 
-	for _, b := range response.Binaries {
+	for _, b := range mountVolume.Binaries {
 		exist, path := util.FindExecutableFile(b)
 		if exist {
 			c.Append(&cdi.ContainerEdits{
@@ -135,7 +117,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		}
 	}
 
-	for _, l := range response.Libraries {
+	for _, l := range mountVolume.Libraries {
 		libPath, err := utils.GetDriverLibPath(l)
 		if err != nil {
 			continue
@@ -155,7 +137,7 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		})
 	}
 
-	for _, dir := range response.LibraryDirs {
+	for _, dir := range mountVolume.LibraryDirs {
 		if utils.IsExist(dir) {
 			c.Append(&cdi.ContainerEdits{
 				ContainerEdits: &cdispecs.ContainerEdits{
@@ -174,8 +156,8 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 	args := spec.Process.Args
 	preCmd := "ldconfig > /dev/null 2>&1"
 
-	if len(response.LibraryDirs) > 0 {
-		preCmd = fmt.Sprintf(`echo '%s' >> /etc/ld.so.conf;%s`, strings.Join(response.LibraryDirs, "\n"), preCmd)
+	if len(mountVolume.LibraryDirs) > 0 {
+		preCmd = fmt.Sprintf(`echo '%s' >> /etc/ld.so.conf;%s`, strings.Join(mountVolume.LibraryDirs, "\n"), preCmd)
 	}
 
 	// 暂时先用这种方案，后续可考虑优化为hook时去ldconfig

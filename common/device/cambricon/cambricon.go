@@ -17,11 +17,20 @@ import (
 )
 
 type Cambricon struct {
-	handles []unsafe.Pointer
+	handles     []unsafe.Pointer
+	mountVolume *device.MountVolume
 }
 
-func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	v := &device.ContainerVolume{}
+func (c *Cambricon) GetMountVolume() *device.MountVolume {
+	return c.mountVolume
+}
+
+func (c *Cambricon) SetMountVolumes(volume *device.MountVolume) {
+	c.mountVolume = volume
+}
+
+func (c *Cambricon) GetDeviceVolume(idxs []int) *device.DeviceVolume {
+	v := &device.DeviceVolume{}
 
 	for i, id := range idxs {
 		v.Devices = append(v.Devices, &device.DeviceSpec{
@@ -34,9 +43,6 @@ func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
 		HostPath:      mluMonitorDeviceName,
 		ContainerPath: mluMonitorDeviceName,
 	})
-
-	v.Binaries = []string{"cnmon", "kpsmi"}
-	v.Libraries = []string{"libcndev.so"}
 
 	return v
 }

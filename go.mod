@@ -11,6 +11,7 @@ require (
 	github.com/sirupsen/logrus v1.9.0
 	github.com/urfave/cli v1.22.5
 	google.golang.org/grpc v1.57.2
+	gopkg.in/yaml.v3 v3.0.1
 	huawei.com/npu-exporter/v6 v6.0.0-RC2.b002.fix
 	k8s.io/client-go v0.19.0
 	k8s.io/klog/v2 v2.90.1

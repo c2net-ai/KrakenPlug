@@ -13,11 +13,20 @@ import (
 )
 
 type Ascend struct {
-	dmgr *devmanager.DeviceManager
+	dmgr        *devmanager.DeviceManager
+	mountVolume *device.MountVolume
 }
 
-func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	v := &device.ContainerVolume{}
+func (c *Ascend) GetMountVolume() *device.MountVolume {
+	return c.mountVolume
+}
+
+func (c *Ascend) SetMountVolumes(volume *device.MountVolume) {
+	c.mountVolume = volume
+}
+
+func (c *Ascend) GetDeviceVolume(idxs []int) *device.DeviceVolume {
+	v := &device.DeviceVolume{}
 
 	for i, id := range idxs {
 		v.Devices = append(v.Devices, &device.DeviceSpec{
@@ -43,17 +52,6 @@ func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
 			ContainerPath: devHdc,
 		},
 	)
-
-	v.Binaries = []string{
-		"dcmi",
-		"npu-smi",
-		"kpsmi",
-	}
-
-	v.LibraryDirs = []string{
-		"/usr/local/Ascend/driver/lib64/common",
-		"/usr/local/Ascend/driver/lib64/driver",
-	}
 
 	return v
 }

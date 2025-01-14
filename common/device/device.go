@@ -23,17 +23,14 @@ type DeviceSpec struct {
 	ContainerPath string
 }
 
-type MountSpec struct {
-	ContainerPath string
-	HostPath      string
+type DeviceVolume struct {
+	Devices []*DeviceSpec
 }
 
-type ContainerVolume struct {
-	Devices     []*DeviceSpec
-	Mounts      []*MountSpec
-	Binaries    []string // 可执行文件, 只需要填入文件名, 不需要带路径
-	Libraries   []string // 动态库, 只需要填入文件名, 不需要带路径
-	LibraryDirs []string // 动态库路径
+type MountVolume struct {
+	Binaries    []string `yaml:"binaries"`    // 可执行文件, 只需要填入文件名, 不需要带路径
+	Libraries   []string `yaml:"libraries"`   // 动态库, 只需要填入文件名, 不需要带路径
+	LibraryDirs []string `yaml:"libraryDirs"` // 动态库路径
 }
 
 type Device interface {
@@ -46,7 +43,9 @@ type Device interface {
 	K8sResourceName() string
 	GetDeviceMemoryInfo(idx int) (*MemInfo, error)
 	GetDeviceModel(idx int) (string, error)
-	GetContainerVolume(idxs []int) *ContainerVolume
+	GetDeviceVolume(idxs []int) *DeviceVolume
+	GetMountVolume() *MountVolume
+	SetMountVolumes(volume *MountVolume)
 }
 
 func K8sResourceName(name string) string {
