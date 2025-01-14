@@ -47,7 +47,7 @@ func printInfo() {
 
 	t.SetTitle("KPSMI")
 
-	t.AppendHeader(table.Row{"Card", "Vendor", "Model", "Memory-Usage(MB)", "Util(%)"})
+	t.AppendHeader(table.Row{"Device", "Vendor", "Model", "Memory-Usage(MB)", "Util(%)"})
 
 	var count int
 	d, err := util.NewDevice()
