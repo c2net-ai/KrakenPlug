@@ -1,0 +1,88 @@
+volume:
+  cambricon:
+    binaries: [
+      "kpsmi",
+      "cnmon"
+    ]
+    libraries: [
+      "libcndev.so"
+    ]
+  ascend:
+    binaries: [
+      "kpsmi",
+      "dcmi",
+      "npu-smi"
+    ]
+    libraryDirs: [
+      "/usr/local/Ascend/driver/lib64/common",
+      "/usr/local/Ascend/driver/lib64/driver"
+    ]
+  nvidia:
+    binaries: [
+      "kpsmi",
+      "nvidia-smi",
+      "nvidia-debugdump",
+      "nvidia-persistenced",
+      "nv-fabricmanager",
+      "nvidia-cuda-mps-control",
+      "nvidia-cuda-mps-server"
+    ]
+    libraries: [
+      # utility_libs
+      "libnvidia-ml.so",
+      "libnvidia-cfg.so",
+      "libnvidia-nscq.so",
+
+      # compute_libs
+      "libcuda.so",
+      "libcudadebugger.so",
+      "libnvidia-opencl.so",
+      "libnvidia-gpucomp.so",
+      "libnvidia-ptxjitcompiler.so",
+      "libnvidia-fatbinaryloader.so",
+      "libnvidia-allocator.so",
+      "libnvidia-compiler.so",
+      "libnvidia-pkcs11.so",
+      "libnvidia-pkcs11-openssl3.so",
+      "libnvidia-nvvm.so",
+        
+      # video_libs
+      "libvdpau_nvidia.so",
+      "libnvidia-encode.so",
+      "libnvidia-opticalflow.so",
+      "libnvcuvid.so",
+        
+      # graphics_libs
+      #"libnvidia-egl-wayland.so",
+      "libnvidia-eglcore.so",
+      "libnvidia-glcore.so",
+      "libnvidia-tls.so",
+      "libnvidia-glsi.so",
+      "libnvidia-fbc.so",
+      "libnvidia-ifr.so",
+      "libnvidia-rtcore.so",
+      "libnvoptix.so",
+        
+      # graphics_libs_glvnd
+      #"libGLX.so",
+      #"libOpenGL.so",
+      #"libGLdispatch.so",)
+      "libGLX_nvidia.so",
+      "libEGL_nvidia.so",
+      "libGLESv2_nvidia.so",
+      "libGLESv1_CM_nvidia.so",
+      "libnvidia-glvkspirv.so",
+      "libnvidia-cbl.so",
+        
+      # graphics_libs_compat
+      "libGL.so",
+      "libEGL.so",
+      "libGLESv1_CM.so",
+      "libGLESv2.so",
+        
+      # ngx_libs
+      "libnvidia-ngx.so",
+        
+      # dxcore_libs
+      "libdxcore.so",
+    ]  

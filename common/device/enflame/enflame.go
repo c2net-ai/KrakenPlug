@@ -10,10 +10,19 @@ import (
 )
 
 type Enflame struct {
+	mountVolume *device.MountVolume
 }
 
-func (c *Enflame) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	return &device.ContainerVolume{}
+func (c *Enflame) GetMountVolume() *device.MountVolume {
+	return c.mountVolume
+}
+
+func (c *Enflame) SetMountVolumes(volume *device.MountVolume) {
+	c.mountVolume = volume
+}
+
+func (c *Enflame) GetDeviceVolume(idxs []int) []string {
+	return []string{}
 }
 
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {

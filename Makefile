@@ -121,6 +121,7 @@ runpkg_push:
 	mkdir -p kptools
 	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
 	CGO_ENABLED=1 GOARCH=amd64 go build -ldflags ${LD_FLAGS} -o kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	cp build/application/kprunc/config.yaml kptools
 	tar -zcvf kptools.tar.gz kptools
 	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-amd64.run
 	rm kptools.tar.gz
@@ -129,6 +130,7 @@ runpkg_push:
 	mkdir -p kptools
 	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kpsmi ./kpsmi/cmd/kpsmi/main.go
 	CGO_ENABLED=1 CC=aarch64-linux-gnu-gcc GOARCH=arm64 go build -ldflags ${LD_FLAGS} -o ./kptools/kprunc ./kprunc/cmd/kprunc/main.go
+	cp build/application/kprunc/config.yaml kptools
 	tar -zcvf kptools.tar.gz kptools
 	cat build/script/install_run.sh kptools.tar.gz > krakenplug-${RELEASE_VER}-arm64.run
 	rm kptools.tar.gz
