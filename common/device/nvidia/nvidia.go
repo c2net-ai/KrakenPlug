@@ -25,33 +25,12 @@ func (n *Nvidia) SetMountVolumes(volume *device.MountVolume) {
 	n.mountVolume = volume
 }
 
-func (n *Nvidia) GetDeviceVolume(idxs []int) *device.DeviceVolume {
-	v := &device.DeviceVolume{}
+func (n *Nvidia) GetDeviceVolume(idxs []int) []string {
+	v := []string{"/dev/nvidiactl", "/dev/nvidia-uvm", "/dev/nvidia-uvm-tools"}
 
-	for i, id := range idxs {
-		v.Devices = append(v.Devices, &device.DeviceSpec{
-			HostPath:      fmt.Sprintf("/dev/nvidia%d", id),
-			ContainerPath: fmt.Sprintf("/dev/nvidia%d", i),
-		})
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("/dev/nvidia%d", id))
 	}
-
-	nvctl := "/dev/nvidiactl"
-	nvuvm := "/dev/nvidia-uvm"
-	nvuvmtools := "/dev/nvidia-uvm-tools"
-	v.Devices = append(v.Devices,
-		&device.DeviceSpec{
-			HostPath:      nvctl,
-			ContainerPath: nvctl,
-		},
-		&device.DeviceSpec{
-			HostPath:      nvuvm,
-			ContainerPath: nvuvm,
-		},
-		&device.DeviceSpec{
-			HostPath:      nvuvmtools,
-			ContainerPath: nvuvmtools,
-		},
-	)
 
 	return v
 }

@@ -18,15 +18,6 @@ type MemInfo struct {
 	Used  uint32
 }
 
-type DeviceSpec struct {
-	HostPath      string
-	ContainerPath string
-}
-
-type DeviceVolume struct {
-	Devices []*DeviceSpec
-}
-
 type MountVolume struct {
 	Binaries    []string `yaml:"binaries"`    // 可执行文件, 只需要填入文件名, 不需要带路径
 	Libraries   []string `yaml:"libraries"`   // 动态库, 只需要填入文件名, 不需要带路径
@@ -43,7 +34,7 @@ type Device interface {
 	K8sResourceName() string
 	GetDeviceMemoryInfo(idx int) (*MemInfo, error)
 	GetDeviceModel(idx int) (string, error)
-	GetDeviceVolume(idxs []int) *DeviceVolume
+	GetDeviceVolume(idxs []int) []string
 	GetMountVolume() *MountVolume
 	SetMountVolumes(volume *MountVolume)
 }

@@ -21,8 +21,8 @@ func (c *Enflame) SetMountVolumes(volume *device.MountVolume) {
 	c.mountVolume = volume
 }
 
-func (c *Enflame) GetDeviceVolume(idxs []int) *device.DeviceVolume {
-	return &device.DeviceVolume{}
+func (c *Enflame) GetDeviceVolume(idxs []int) []string {
+	return []string{}
 }
 
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {

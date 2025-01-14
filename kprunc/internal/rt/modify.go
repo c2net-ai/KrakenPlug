@@ -81,8 +81,8 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 		ContainerEdits: &cdispecs.ContainerEdits{},
 	}
 
-	for _, d := range deviceVolume.Devices {
-		_, err := os.Stat(d.HostPath)
+	for _, d := range deviceVolume {
+		_, err := os.Stat(d)
 		if err != nil {
 			m.logger.Errorf("Failed to find host path: %v", err)
 			continue
@@ -91,8 +91,8 @@ func (m *ModifySpec) Modify(spec *specs.Spec) error {
 			ContainerEdits: &cdispecs.ContainerEdits{
 				DeviceNodes: []*cdispecs.DeviceNode{
 					{
-						HostPath: d.HostPath,
-						Path:     d.HostPath,
+						HostPath: d,
+						Path:     d,
 					},
 				},
 			},

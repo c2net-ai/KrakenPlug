@@ -25,33 +25,12 @@ func (c *Ascend) SetMountVolumes(volume *device.MountVolume) {
 	c.mountVolume = volume
 }
 
-func (c *Ascend) GetDeviceVolume(idxs []int) *device.DeviceVolume {
-	v := &device.DeviceVolume{}
+func (c *Ascend) GetDeviceVolume(idxs []int) []string {
+	v := []string{"/dev/davinci_manager", "/dev/devmm_svm", "/dev/hisi_hdc"}
 
-	for i, id := range idxs {
-		v.Devices = append(v.Devices, &device.DeviceSpec{
-			HostPath:      fmt.Sprintf("/dev/davinci%d", id),
-			ContainerPath: fmt.Sprintf("/dev/davinci%d", i),
-		})
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("/dev/davinci%d", id))
 	}
-
-	devManager := "/dev/davinci_manager"
-	devSvm := "/dev/devmm_svm"
-	devHdc := "/dev/hisi_hdc"
-	v.Devices = append(v.Devices,
-		&device.DeviceSpec{
-			HostPath:      devManager,
-			ContainerPath: devManager,
-		},
-		&device.DeviceSpec{
-			HostPath:      devSvm,
-			ContainerPath: devSvm,
-		},
-		&device.DeviceSpec{
-			HostPath:      devHdc,
-			ContainerPath: devHdc,
-		},
-	)
 
 	return v
 }
