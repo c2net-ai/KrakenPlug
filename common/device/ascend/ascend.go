@@ -13,46 +13,23 @@ import (
 )
 
 type Ascend struct {
-	dmgr *devmanager.DeviceManager
+	dmgr        *devmanager.DeviceManager
+	mountVolume *device.MountVolume
 }
 
-func (c *Ascend) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	v := &device.ContainerVolume{}
+func (c *Ascend) GetMountVolume() *device.MountVolume {
+	return c.mountVolume
+}
 
-	for i, id := range idxs {
-		v.Devices = append(v.Devices, &device.DeviceSpec{
-			HostPath:      fmt.Sprintf("/dev/davinci%d", id),
-			ContainerPath: fmt.Sprintf("/dev/davinci%d", i),
-		})
-	}
+func (c *Ascend) SetMountVolumes(volume *device.MountVolume) {
+	c.mountVolume = volume
+}
 
-	devManager := "/dev/davinci_manager"
-	devSvm := "/dev/devmm_svm"
-	devHdc := "/dev/hisi_hdc"
-	v.Devices = append(v.Devices,
-		&device.DeviceSpec{
-			HostPath:      devManager,
-			ContainerPath: devManager,
-		},
-		&device.DeviceSpec{
-			HostPath:      devSvm,
-			ContainerPath: devSvm,
-		},
-		&device.DeviceSpec{
-			HostPath:      devHdc,
-			ContainerPath: devHdc,
-		},
-	)
+func (c *Ascend) GetDeviceVolume(idxs []int) []string {
+	v := []string{"/dev/davinci_manager", "/dev/devmm_svm", "/dev/hisi_hdc"}
 
-	v.Binaries = []string{
-		"dcmi",
-		"npu-smi",
-		"kpsmi",
-	}
-
-	v.LibraryDirs = []string{
-		"/usr/local/Ascend/driver/lib64/common",
-		"/usr/local/Ascend/driver/lib64/driver",
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("/dev/davinci%d", id))
 	}
 
 	return v

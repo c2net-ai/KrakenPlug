@@ -16,27 +16,29 @@ import (
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
 )
 
+const (
+	version = 5
+)
+
 type Cambricon struct {
-	handles []unsafe.Pointer
+	handles     []unsafe.Pointer
+	mountVolume *device.MountVolume
 }
 
-func (c *Cambricon) GetContainerVolume(idxs []int) *device.ContainerVolume {
-	v := &device.ContainerVolume{}
+func (c *Cambricon) GetMountVolume() *device.MountVolume {
+	return c.mountVolume
+}
 
-	for i, id := range idxs {
-		v.Devices = append(v.Devices, &device.DeviceSpec{
-			HostPath:      fmt.Sprintf("%s%d", mluDeviceNamePrefix, id),
-			ContainerPath: fmt.Sprintf("%s%d", mluDeviceNamePrefix, i),
-		})
+func (c *Cambricon) SetMountVolumes(volume *device.MountVolume) {
+	c.mountVolume = volume
+}
+
+func (c *Cambricon) GetDeviceVolume(idxs []int) []string {
+	v := []string{"/dev/cambricon_ctl"}
+
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("%s%d", "/dev/cambricon_dev", id))
 	}
-
-	v.Devices = append(v.Devices, &device.DeviceSpec{
-		HostPath:      mluMonitorDeviceName,
-		ContainerPath: mluMonitorDeviceName,
-	})
-
-	v.Binaries = []string{"cnmon", "kpsmi"}
-	v.Libraries = []string{"libcndev.so"}
 
 	return v
 }
@@ -122,13 +124,6 @@ func NewCambricon() (device.Device, error) {
 	c.handles = append(c.handles, handle)
 	return c, nil
 }
-
-const (
-	version              = 5
-	mluDeviceNamePrefix  = "/dev/cambricon_dev"
-	mluMonitorDeviceName = "/dev/cambricon_ctl"
-	cnmonPath            = "/usr/bin/cnmon"
-)
 
 func errorString(cRet lib.Ret_t) error {
 	if cRet == lib.SUCCESS {

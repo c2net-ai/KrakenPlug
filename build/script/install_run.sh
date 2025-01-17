@@ -6,6 +6,8 @@ tail -n +$ARCHIVE $0 > kptools.tar.gz
 tar -zpxf kptools.tar.gz
 cp kptools/kpsmi /usr/local/bin
 cp kptools/kprunc /usr/local/bin
+mkdir -p /etc/kprunc
+cp kptools/config.yaml /etc/kprunc
 rm kptools.tar.gz
 rm -rf kptools
 

@@ -3,8 +3,11 @@ package rt
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"gopkg.in/yaml.v3"
+	"io/ioutil"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/info"
+	"openi.pcl.ac.cn/Kraken/KrakenPlug/kprunc/internal/config"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/kprunc/internal/oci"
 	"os"
 	"strings"
@@ -37,6 +40,21 @@ func hasVersionFlag(args []string) bool {
 	return false
 }
 
+func (rt *Runtime) GetConfig() (*config.Config, error) {
+	file, err := ioutil.ReadFile("/etc/kprunc/config.yaml")
+	if nil != err {
+		return nil, fmt.Errorf("load config file failed: %v", err)
+	}
+
+	config := &config.Config{}
+	err = yaml.Unmarshal(file, config)
+	if err != nil {
+		return nil, fmt.Errorf("unmarshal config file failed: %v", err)
+	}
+
+	return config, nil
+}
+
 func (rt *Runtime) Run(args []string) error {
 	logger := logrus.New()
 	file, err := os.OpenFile("/var/log/kprunc.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
@@ -60,11 +78,17 @@ func (rt *Runtime) Run(args []string) error {
 		return lowLevelRuntime.Exec(args)
 	}
 
+	config, err := rt.GetConfig()
+	if err != nil {
+		return lowLevelRuntime.Exec(args)
+	}
+
 	device, err := util.NewDevice()
 	if err != nil {
 		return lowLevelRuntime.Exec(args)
 	}
 	defer device.Shutdown()
+	device.SetMountVolumes(config.Volume[device.Name()])
 
 	ociSpec, err := oci.NewSpec(logger, args)
 	if err != nil {
