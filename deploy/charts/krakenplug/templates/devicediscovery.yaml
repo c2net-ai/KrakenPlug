@@ -39,7 +39,7 @@ spec:
           securityContext:
             privileged: true
           #image: "devicediscovery:v1.0"
-          image: "{{ .Values.global.image.repository.address }}/{{ .Values.devicediscovery.image.name }}:{{ default .Chart.AppVersion .Values.devicediscovery.image.tag }}"
+          image: "{{ .Values.image.repository.address }}/{{ .Values.devicediscovery.image.name }}:{{ default .Chart.AppVersion .Values.devicediscovery.image.tag }}"
           env:
             - name: KRAKENPLUG_NODE_NAME
               valueFrom:

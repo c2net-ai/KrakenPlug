@@ -22,7 +22,13 @@ func (c *Enflame) SetMountVolumes(volume *device.MountVolume) {
 }
 
 func (c *Enflame) GetDeviceVolume(idxs []int) []string {
-	return []string{}
+	v := []string{"/dev/gcuctl"}
+
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("%s%d", "/dev/gcu", id))
+	}
+
+	return v
 }
 
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {
@@ -91,12 +97,6 @@ func NewEnflame() (device.Device, error) {
 	c := &Enflame{}
 	return c, nil
 }
-
-const (
-	deviceNamePrefix = "/dev/gcu"
-	deviceCtlPath    = "/dev/gcuctl"
-	smiPath          = "/usr/sbin/efsmi"
-)
 
 func (c *Enflame) Shutdown() error {
 	lib.Shutdown()

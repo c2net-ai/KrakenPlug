@@ -17,6 +17,14 @@ volume:
       "/usr/local/Ascend/driver/lib64/common",
       "/usr/local/Ascend/driver/lib64/driver"
     ]
+  enflame:
+    binaries: [
+      "kpsmi",
+      "efsmi"
+    ]
+    libraries: [
+      "libefml.so"
+    ]
   nvidia:
     binaries: [
       "kpsmi",
