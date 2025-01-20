@@ -21,9 +21,15 @@ spec:
           #image: "deviceplugin:v1.0"
           image: "{{ .Values.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
           volumeMounts:
+            - name: sys
+              readOnly: true
+              mountPath: /sys
             - name: device-plugin
               mountPath: /var/lib/kubelet/device-plugins
       volumes:
+        - name: sys
+          hostPath:
+            path: /sys
         - name: device-plugin
           hostPath:
             path: /var/lib/kubelet/device-plugins
