@@ -23,7 +23,7 @@ volume:
       "efsmi"
     ]
     libraries: [
-      "libefml.so"
+      "libefml.so.1.0.0"
     ]
   nvidia:
     binaries: [
