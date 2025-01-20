@@ -45,11 +45,14 @@ func (dl *dl_handle_ptr) Init() C.efmlReturn_t {
 func (dl *dl_handle_ptr) InitV2(no_driver bool) C.efmlReturn_t {
 	handle := C.dlopen(C.CString("libefml.so"), C.RTLD_LAZY|C.RTLD_GLOBAL)
 	if handle == C.NULL {
-		handle := C.dlopen(C.CString("/usr/lib/libefml.so"), C.RTLD_LAZY|C.RTLD_GLOBAL)
+		handle = C.dlopen(C.CString("libefml.so.1.0.0"), C.RTLD_LAZY|C.RTLD_GLOBAL)
 		if handle == C.NULL {
-			handle := C.dlopen(C.CString("/usr/lib/libefml.so.1.0.0"), C.RTLD_LAZY|C.RTLD_GLOBAL)
+			handle = C.dlopen(C.CString("/usr/lib/libefml.so"), C.RTLD_LAZY|C.RTLD_GLOBAL)
 			if handle == C.NULL {
-				return C.EFML_ERROR_LIBRARY_NOT_FOUND
+				handle = C.dlopen(C.CString("/usr/lib/libefml.so.1.0.0"), C.RTLD_LAZY|C.RTLD_GLOBAL)
+				if handle == C.NULL {
+					return C.EFML_ERROR_LIBRARY_NOT_FOUND
+				}
 			}
 		}
 	}
