@@ -17,7 +17,7 @@ import (
 
 var (
 	deviceLibs = map[string]string{
-		device.Enflame:   "libefml.so",
+		device.Enflame:   "libefml.so.1.0.0",
 		device.Cambricon: "libcndev.so",
 		device.Ascend:    "libdcmi.so",
 		device.Nvidia:    "libnvidia-ml.so.1",
