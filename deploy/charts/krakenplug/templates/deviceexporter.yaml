@@ -25,9 +25,9 @@ spec:
                 fieldRef:
                   fieldPath: spec.nodeName
           volumeMounts:
-            - name: pod-resources
+            - name: sys
               readOnly: true
-              mountPath: /var/lib/kubelet/pod-resources
+              mountPath: /sys
             - name: pod-resources
               readOnly: true
               mountPath: /var/lib/kubelet/pod-resources
