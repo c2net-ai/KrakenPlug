@@ -22,11 +22,26 @@ func (c *Enflame) SetMountVolumes(volume *device.MountVolume) {
 }
 
 func (c *Enflame) GetDeviceVolume(idxs []int) []string {
-	return []string{}
+	v := []string{"/dev/gcuctl"}
+
+	for _, id := range idxs {
+		v = append(v, fmt.Sprintf("%s%d", "/dev/gcu", id))
+	}
+
+	return v
 }
 
 func (c *Enflame) GetDeviceModel(idx int) (string, error) {
-	return "", nil
+	handle := lib.Handle{
+		Dev_Idx: uint(idx),
+	}
+
+	sku, err := handle.GetDevSKU(uint(idx))
+	if err != nil {
+		return "", err
+	}
+
+	return sku, nil
 }
 
 func (c *Enflame) GetDeviceMemoryInfo(idx int) (*device.MemInfo, error) {
@@ -49,7 +64,7 @@ func (c *Enflame) GetDeviceUtil(idx int) (int, error) {
 	handle := lib.Handle{
 		Dev_Idx: uint(idx),
 	}
-	dtuUsage, err := handle.GetDevDtuUsage()
+	dtuUsage, err := handle.GetDevDtuUsageAsync()
 	if err != nil {
 		return 0, err
 	}
@@ -74,7 +89,7 @@ func (c *Enflame) GetContainerAllocateResponse(idxs []int) (*pluginapi.Container
 }
 
 func NewEnflame() (device.Device, error) {
-	err := lib.InitV2(true)
+	err := lib.InitV2(false)
 	if err != nil {
 		return nil, fmt.Errorf("failed to initialize efml: %v", err)
 	}
@@ -82,12 +97,6 @@ func NewEnflame() (device.Device, error) {
 	c := &Enflame{}
 	return c, nil
 }
-
-const (
-	deviceNamePrefix = "/dev/gcu"
-	deviceCtlPath    = "/dev/gcuctl"
-	smiPath          = "/usr/sbin/efsmi"
-)
 
 func (c *Enflame) Shutdown() error {
 	lib.Shutdown()

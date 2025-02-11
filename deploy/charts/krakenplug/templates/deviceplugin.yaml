@@ -19,11 +19,17 @@ spec:
             #由于有些晟腾设备无法多个容器挂载同一个设备，这里使用privileged模式解决
             privileged: true
           #image: "deviceplugin:v1.0"
-          image: "{{ .Values.global.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
+          image: "{{ .Values.image.repository.address }}/{{ .Values.deviceplugin.image.name }}:{{ default .Chart.AppVersion .Values.deviceplugin.image.tag }}"
           volumeMounts:
+            - name: sys
+              readOnly: true
+              mountPath: /sys
             - name: device-plugin
               mountPath: /var/lib/kubelet/device-plugins
       volumes:
+        - name: sys
+          hostPath:
+            path: /sys
         - name: device-plugin
           hostPath:
             path: /var/lib/kubelet/device-plugins
