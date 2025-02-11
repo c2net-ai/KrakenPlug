@@ -59,6 +59,12 @@ func printInfo() {
 
 	count, err = d.GetDeviceCount()
 	for i := 0; i < count; i++ {
+		_, _ = d.GetDeviceUtil(i)
+	}
+	// 第一次获取不到util，需要等待一下
+	time.Sleep(500 * time.Millisecond)
+
+	for i := 0; i < count; i++ {
 		memInfo, err := d.GetDeviceMemoryInfo(i)
 		if err != nil {
 			continue
@@ -68,12 +74,6 @@ func printInfo() {
 			continue
 		}
 		util, err := d.GetDeviceUtil(i)
-		if err != nil {
-			continue
-		}
-		// 第一次获取不到，需要等待一下
-		time.Sleep(100 * time.Millisecond)
-		util, err = d.GetDeviceUtil(i)
 		if err != nil {
 			continue
 		}
