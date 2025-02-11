@@ -8,6 +8,7 @@ import (
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
 	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
 	"strings"
+	"time"
 )
 
 func NewApp(buildVersion ...string) *cli.App {
@@ -70,6 +71,13 @@ func printInfo() {
 		if err != nil {
 			continue
 		}
+		// 第一次获取不到，需要等待一下
+		time.Sleep(100 * time.Millisecond)
+		util, err = d.GetDeviceUtil(i)
+		if err != nil {
+			continue
+		}
+
 		t.AppendRows([]table.Row{
 			{i, strings.ToUpper(d.Name()), model, fmt.Sprintf("%v / %v", memInfo.Used, memInfo.Total), util},
 		})
