@@ -12,7 +12,7 @@ KrakenPlug是人工智能集群中管理异构AI计算设备的插件和工具�
 
 ### 安装kpsmi/kprunc工具
 
-在[这里](https://openi.pcl.ac.cn/Kraken/KrakenCharts)下载对应版本的run安装包krakenplug-{version}-{arch}.run并在计算节点上执行：
+在[这里](https://openi.pcl.ac.cn/c2net-ai/KrakenCharts)下载对应版本的run安装包krakenplug-{version}-{arch}.run并在计算节点上执行：
 
 ```shell
 ./krakenplug-{version}-{arch}.run
@@ -48,7 +48,7 @@ kprunc -v
 执行以下命令增加Chart仓库：
 
 ```shell
-helm repo add krakenplug https://openi.pcl.ac.cn/Kraken/KrakenCharts/raw/branch/master
+helm repo add krakenplug https://openi.pcl.ac.cn/c2net-ai/KrakenCharts/raw/branch/master
 ```
 
 添加成功后同步仓库信息，如下：

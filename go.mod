@@ -1,4 +1,4 @@
-module openi.pcl.ac.cn/Kraken/KrakenPlug
+module openi.pcl.ac.cn/c2net-ai/KrakenPlug
 
 go 1.18
 

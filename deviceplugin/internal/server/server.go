@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"net"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device/util"
 	"os"
 	"path"
 	"strconv"
@@ -13,7 +13,7 @@ import (
 	"google.golang.org/grpc"
 	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
 )
 
 type Server struct {

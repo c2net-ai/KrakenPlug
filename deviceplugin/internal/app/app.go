@@ -8,7 +8,7 @@ import (
 
 	"github.com/fsnotify/fsnotify"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceplugin/internal/server"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/deviceplugin/internal/server"
 
 	"k8s.io/klog/v2"
 

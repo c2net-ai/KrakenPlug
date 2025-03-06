@@ -4,9 +4,9 @@ import (
 	"fmt"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 	"math"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/enflame/lib"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device/enflame/lib"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/utils"
 )
 
 type Enflame struct {
