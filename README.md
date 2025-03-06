@@ -12,7 +12,7 @@ KrakenPlug是人工智能集群中管理异构AI计算设备的插件和工具�
 
 ### 安装kpsmi/kprunc工具
 
-在[这里](https://openi.pcl.ac.cn/c2net-ai/KrakenCharts)下载对应版本的run安装包krakenplug-{version}-{arch}.run并在计算节点上执行：
+从Releases下载对应版本的run安装包krakenplug-{version}-{arch}.run并在计算节点上执行：
 
 ```shell
 ./krakenplug-{version}-{arch}.run
