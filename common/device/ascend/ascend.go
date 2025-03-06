@@ -8,8 +8,8 @@ import (
 	"huawei.com/npu-exporter/v6/devmanager/common"
 	"k8s.io/klog/v2"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/utils"
 )
 
 type Ascend struct {

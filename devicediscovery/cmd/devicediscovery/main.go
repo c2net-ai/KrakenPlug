@@ -1,8 +1,8 @@
 package main
 
 import (
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/info"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/devicediscovery/internal/app"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/info"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/devicediscovery/internal/app"
 	"os"
 
 	"github.com/sirupsen/logrus"

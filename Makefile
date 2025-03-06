@@ -24,7 +24,7 @@ NEED_LATEST=$(need_latest)
 
 DRONE_REPO=$(drone_repo)
 
-CLI_VERSION_PACKAGE = openi.pcl.ac.cn/Kraken/KrakenPlug/common/info
+CLI_VERSION_PACKAGE = openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/info
 # 静态变量
 LD_FLAGS=" \
     -X '$(CLI_VERSION_PACKAGE).gitCommit=`git log --pretty=format:'%h' -1`'   \

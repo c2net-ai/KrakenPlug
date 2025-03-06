@@ -22,7 +22,7 @@ version: 0.1.0
 # follow Semantic Versioning. They should reflect the version the application is using.
 appVersion: 1.16.0
 
-home: https://openi.pcl.ac.cn/Kraken/KrakenPlug/
+home: https://openi.pcl.ac.cn/c2net-ai/KrakenPlug/
 keywords:
   - ai
   - machine learning
@@ -32,4 +32,4 @@ maintainers:
   - email: linfj＠pcl.ac.cn
     name: krakenplug
 sources:
-  - https://openi.pcl.ac.cn/Kraken/KrakenPlug/
+  - https://openi.pcl.ac.cn/c2net-ai/KrakenPlug/

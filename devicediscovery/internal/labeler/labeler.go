@@ -6,10 +6,10 @@ import (
 	v1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/klog/v2"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/cluster"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/cluster"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device/util"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/utils"
 	"strconv"
 )
 

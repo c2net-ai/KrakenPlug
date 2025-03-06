@@ -3,13 +3,13 @@ package app
 import (
 	"fmt"
 	"net/http"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/signal"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/signal"
 	"os"
 	"syscall"
 
 	"k8s.io/klog/v2"
 
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceexporter/internal/collector"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/deviceexporter/internal/collector"
 
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
