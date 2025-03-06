@@ -1,7 +1,7 @@
 package main
 
 import (
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/kprunc/internal/rt"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/kprunc/internal/rt"
 	"os"
 )
 

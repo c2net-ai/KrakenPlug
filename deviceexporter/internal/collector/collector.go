@@ -2,15 +2,15 @@ package collector
 
 import (
 	"fmt"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device/util"
 	"strconv"
 	"time"
 
 	"k8s.io/klog/v2"
 
 	"github.com/prometheus/client_golang/prometheus"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceexporter/internal/podresources"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/deviceexporter/internal/podresources"
 )
 
 var (

@@ -5,11 +5,11 @@ import (
 	"fmt"
 	"k8s.io/klog/v2"
 
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/utils"
 
 	"github.com/NVIDIA/go-nvml/pkg/nvml"
 	pluginapi "k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device"
 )
 
 type Nvidia struct {

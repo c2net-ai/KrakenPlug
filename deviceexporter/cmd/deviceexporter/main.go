@@ -1,10 +1,10 @@
 package main
 
 import (
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/info"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/info"
 	"os"
 
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/deviceexporter/internal/app"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/deviceexporter/internal/app"
 
 	"github.com/sirupsen/logrus"
 )

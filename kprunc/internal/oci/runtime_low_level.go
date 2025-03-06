@@ -19,7 +19,7 @@ package oci
 import (
 	"fmt"
 	"github.com/sirupsen/logrus"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/kprunc/internal/lookup"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/kprunc/internal/lookup"
 )
 
 // NewLowLevelRuntime creates a Runtime that wraps a low-level runtime executable.

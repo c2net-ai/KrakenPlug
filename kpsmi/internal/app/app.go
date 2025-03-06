@@ -5,8 +5,8 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/jedib0t/go-pretty/v6/text"
 	"github.com/urfave/cli"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/device/util"
-	"openi.pcl.ac.cn/Kraken/KrakenPlug/common/utils"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/device/util"
+	"openi.pcl.ac.cn/c2net-ai/KrakenPlug/common/utils"
 	"strings"
 	"time"
 )
